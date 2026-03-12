@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>La Pâtisserie</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg0:#0e0a0f; --gold:#c9a84c; --gold-l:#e8c97a; --gold-d:#7a6230;
+  --rose:#e8647a; --cream:#f5efe6; --cream-d:#bfb3a0; --mint:#5cc8b8;
+  --gb:rgba(201,168,76,0.18); --r:16px; --r-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg0);min-height:100vh;color:var(--cream);overflow-x:hidden;}
+
+/* BG */
+.bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.2;animation:of 14s ease-in-out infinite;}
+.orb.a{width:500px;height:500px;background:radial-gradient(circle,#6b2d4a,transparent);top:-120px;left:-100px;}
+.orb.b{width:400px;height:400px;background:radial-gradient(circle,#3d2a14,transparent);bottom:-80px;right:-80px;animation-delay:-6s;}
+.orb.c{width:280px;height:280px;background:radial-gradient(circle,#1e3a2e,transparent);top:40%;left:40%;animation-delay:-10s;}
+@keyframes of{0%,100%{transform:translate(0,0)}40%{transform:translate(25px,-18px)}70%{transform:translate(-18px,22px)}}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(201,168,76,.03)1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.03)1px,transparent 1px);background-size:48px 48px;}
+
+/* HEADER */
+header{position:relative;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:12px 18px 10px;border-bottom:1px solid rgba(201,168,76,.1);}
+header::after{content:'';position:absolute;bottom:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.3;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;letter-spacing:4px;color:var(--gold-l);text-shadow:0 0 30px rgba(201,168,76,.35);}
+.logo span{font-size:.6rem;letter-spacing:5px;color:var(--gold-d);display:block;margin-top:-4px;text-transform:uppercase;}
+.hstats{display:flex;gap:7px;align-items:center;}
+.hstat{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.03);border:1px solid var(--gb);border-radius:30px;padding:4px 11px;font-size:.74rem;color:var(--cream-d);}
+.hstat strong{color:var(--gold-l);}
+#book-btn{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.35);border-radius:var(--r-sm);padding:6px 13px;color:var(--gold-l);font-family:'DM Sans',sans-serif;font-weight:500;font-size:.76rem;letter-spacing:.5px;cursor:pointer;transition:all .2s;}
+#book-btn:hover{background:linear-gradient(135deg,rgba(201,168,76,.25),rgba(201,168,76,.1));box-shadow:0 4px 18px rgba(201,168,76,.2);}
+
+/* MAIN WRAP */
+#wrap{position:relative;z-index:10;max-width:820px;margin:0 auto;padding:12px 12px 20px;display:flex;flex-direction:column;gap:10px;}
+
+/* ── RECIPE SELECTOR ── */
+#recipe-bar{
+  background:linear-gradient(160deg,rgba(28,20,34,.97),rgba(18,12,22,.99));
+  border:1px solid var(--gb);border-radius:var(--r);padding:12px 12px 10px;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+}
+.rb-label{font-size:.58rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold-d);margin-bottom:8px;font-weight:500;}
+#rlist{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+#rlist::-webkit-scrollbar{height:3px;}
+#rlist::-webkit-scrollbar-thumb{background:rgba(201,168,76,.25);border-radius:3px;}
+.rcard{
+  flex-shrink:0;border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);
+  transition:all .2s;text-align:center;min-width:76px;position:relative;
+  touch-action:manipulation;
+}
+.rcard:not(.locked):hover,.rcard:not(.locked):active{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.08);transform:translateY(-2px);}
+.rcard.selected{border-color:rgba(201,168,76,.6);background:rgba(201,168,76,.12);box-shadow:0 0 18px rgba(201,168,76,.15);}
+.rcard.locked{opacity:.35;cursor:not-allowed;filter:grayscale(1);}
+.rc-e{font-size:1.7rem;display:block;}
+.rc-n{font-family:'Cormorant Garamond',serif;font-size:.82rem;color:var(--cream);margin-top:2px;white-space:nowrap;}
+.rc-d{font-size:.55rem;color:var(--gold-d);margin-top:1px;}
+.lbadge{position:absolute;top:4px;right:5px;font-size:.5rem;background:rgba(255,255,255,.08);color:var(--cream-d);border-radius:5px;padding:1px 4px;}
+.nbadge{position:absolute;top:4px;right:5px;font-size:.52rem;background:var(--mint);color:#fff;border-radius:5px;padding:1px 5px;font-weight:700;animation:np .8s ease infinite alternate;}
+@keyframes np{from{opacity:1}to{opacity:.5}}
+
+/* ── KITCHEN ── */
+#kitchen{
+  background:linear-gradient(160deg,rgba(28,20,34,.97),rgba(18,12,22,.99));
+  border:1px solid var(--gb);border-radius:var(--r);
+  box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(201,168,76,.08);
+  position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;
+  min-height:420px;
+}
+.karc{position:absolute;border-radius:50%;pointer-events:none;}
+.karc.a{width:600px;height:600px;border:1px solid rgba(201,168,76,.05);top:-320px;left:50%;transform:translateX(-50%);}
+.karc.b{width:420px;height:420px;border:1px solid rgba(201,168,76,.04);top:-240px;left:50%;transform:translateX(-50%);}
+.wtop{position:absolute;bottom:0;left:0;right:0;height:42%;background:linear-gradient(180deg,transparent,rgba(10,6,14,.6));border-top:1px solid rgba(201,168,76,.12);z-index:0;}
+.wtop::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.4),transparent);}
+
+/* STEP HEADER */
+#sdisp{position:relative;z-index:5;text-align:center;padding:14px 20px 5px;width:100%;}
+.stepnum{font-size:.56rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold-d);margin-bottom:3px;font-weight:500;}
+#stitle{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;color:var(--cream);letter-spacing:.5px;}
+#sdesc{font-size:.74rem;color:var(--cream-d);margin-top:3px;}
+#shint{font-size:.67rem;color:var(--gold);margin-top:3px;min-height:14px;font-weight:500;}
+#sdots{display:flex;gap:5px;justify-content:center;position:relative;z-index:5;margin-top:5px;}
+.dot{width:22px;height:2px;border-radius:2px;background:rgba(201,168,76,.18);transition:all .35s;}
+.dot.active{background:var(--gold);box-shadow:0 0 8px rgba(201,168,76,.5);width:30px;}
+.dot.done{background:var(--mint);}
+
+/* WORKBENCH */
+#wb{position:relative;z-index:5;display:flex;align-items:flex-end;justify-content:center;gap:20px;width:100%;padding:4px 16px 8px;}
+#bwrap{display:flex;flex-direction:column;align-items:center;gap:4px;}
+#bowl{width:120px;height:84px;background:linear-gradient(180deg,rgba(40,30,50,.9),rgba(22,15,30,.95));border-radius:0 0 60px 60px/0 0 46px 46px;border:2px solid rgba(201,168,76,.2);border-top:none;position:relative;overflow:hidden;box-shadow:inset 0 -4px 18px rgba(0,0,0,.5),0 5px 20px rgba(0,0,0,.4);}
+#bfill{position:absolute;bottom:0;left:0;right:0;height:0%;transition:height .4s cubic-bezier(.34,1.56,.64,1),background .5s;border-radius:0 0 58px 58px/0 0 44px 44px;}
+#blabel{font-size:.58rem;letter-spacing:3px;color:var(--gold-d);font-weight:500;text-transform:uppercase;}
+#oven{width:104px;background:linear-gradient(180deg,#2a2a2a,#1a1a1a);border-radius:10px;padding:7px;box-shadow:0 7px 26px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.06);}
+#owin{width:88px;height:65px;background:#0d0d0d;border-radius:7px;margin:0 auto;position:relative;overflow:hidden;border:2px solid rgba(255,255,255,.06);box-shadow:inset 0 0 18px rgba(0,0,0,.8);}
+#oglow{position:absolute;inset:0;transition:background .6s;}
+#oitem{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:1.9rem;transition:all .4s;}
+#obar-w{height:5px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:6px;overflow:hidden;}
+#obar{height:100%;width:0%;background:linear-gradient(90deg,#c44b00,#ffa040,#ffd700);border-radius:3px;transition:width .1s;box-shadow:0 0 5px rgba(255,120,0,.5);}
+#otemp{text-align:center;margin-top:3px;font-size:.52rem;color:rgba(255,255,255,.22);letter-spacing:2px;text-transform:uppercase;}
+
+/* INGREDIENTS */
+#ingsec{position:relative;z-index:5;width:100%;padding:0 10px 3px;display:flex;flex-direction:column;gap:5px;}
+#inggrid{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;}
+.iitem{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(201,168,76,.14);border-radius:var(--r-sm);padding:7px 9px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:80px;transition:all .2s;position:relative;overflow:hidden;}
+.iitem.correct{border-color:rgba(92,200,184,.5);box-shadow:0 0 14px rgba(92,200,184,.12);}
+.iitem.wrong{border-color:rgba(232,100,122,.6);box-shadow:0 0 14px rgba(232,100,122,.18);animation:shk .3s ease;}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.ie{font-size:1.45rem;}
+.iname{font-size:.57rem;font-weight:500;color:var(--cream-d);letter-spacing:.3px;}
+.ictrls{display:flex;align-items:center;gap:4px;}
+.ibtn{width:26px;height:26px;border-radius:7px;border:1px solid rgba(201,168,76,.3);background:rgba(201,168,76,.1);color:var(--gold-l);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;transition:all .15s;font-family:'DM Sans',sans-serif;touch-action:manipulation;}
+.ibtn:hover,.ibtn:active{background:rgba(201,168,76,.25);border-color:var(--gold);transform:scale(1.1);}
+.ibtn.minus{border-color:rgba(232,100,122,.3);background:rgba(232,100,122,.08);color:#e8a0ac;}
+.ibtn.minus:hover,.ibtn.minus:active{background:rgba(232,100,122,.22);border-color:var(--rose);}
+.ival{font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:600;color:var(--cream);min-width:30px;text-align:center;}
+.iunit{font-size:.52rem;color:var(--gold-d);font-weight:500;letter-spacing:.8px;}
+.ifb{font-size:.56rem;min-height:11px;font-weight:600;}
+
+/* DECOR */
+#decar{display:none;flex-direction:column;align-items:center;gap:7px;z-index:5;position:relative;width:100%;padding:0 10px;}
+#dcanvas{border-radius:var(--r-sm);border:1px solid rgba(201,168,76,.22);cursor:crosshair;box-shadow:0 0 24px rgba(201,168,76,.08);max-width:100%;}
+#dtools{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;}
+.dbtn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:.69rem;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .15s;color:var(--cream-d);touch-action:manipulation;}
+.dbtn:hover,.dbtn:active{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.35);color:var(--cream);}
+.dbtn.active{background:rgba(201,168,76,.18);color:var(--gold-l);border-color:rgba(201,168,76,.5);}
+
+/* ACTIONS */
+#arow{display:flex;gap:8px;justify-content:center;padding:0 10px 10px;position:relative;z-index:5;flex-wrap:wrap;}
+.abtn{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.07));border:1px solid rgba(201,168,76,.38);border-radius:var(--r-sm);padding:9px 18px;color:var(--gold-l);font-family:'DM Sans',sans-serif;font-weight:500;font-size:.8rem;letter-spacing:.3px;cursor:pointer;box-shadow:0 4px 16px rgba(201,168,76,.1);transition:all .2s;touch-action:manipulation;}
+.abtn:hover,.abtn:active{background:linear-gradient(135deg,rgba(201,168,76,.3),rgba(201,168,76,.12));border-color:var(--gold);box-shadow:0 6px 22px rgba(201,168,76,.22);transform:translateY(-1px);}
+.abtn:active{transform:scale(.97);}
+.abtn:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none;}
+.abtn.green{background:linear-gradient(135deg,rgba(92,200,184,.16),rgba(92,200,184,.05));border-color:rgba(92,200,184,.38);color:var(--mint);box-shadow:0 4px 16px rgba(92,200,184,.1);}
+.abtn.green:hover,.abtn.green:active{background:linear-gradient(135deg,rgba(92,200,184,.28),rgba(92,200,184,.1));border-color:var(--mint);box-shadow:0 6px 22px rgba(92,200,184,.22);}
+.abtn.rose{background:linear-gradient(135deg,rgba(232,100,122,.16),rgba(232,100,122,.05));border-color:rgba(232,100,122,.38);color:#f0a0ac;box-shadow:0 4px 16px rgba(232,100,122,.1);}
+.abtn.rose:hover,.abtn.rose:active{background:linear-gradient(135deg,rgba(232,100,122,.28),rgba(232,100,122,.1));border-color:var(--rose);box-shadow:0 6px 22px rgba(232,100,122,.22);}
+
+/* FEEDBACK */
+#fbanner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);background:linear-gradient(160deg,rgba(28,20,36,.99),rgba(18,12,24,.99));border:1px solid rgba(201,168,76,.28);border-radius:18px;padding:20px 24px;z-index:50;box-shadow:0 24px 70px rgba(0,0,0,.7);text-align:center;opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none;max-width:290px;width:92%;backdrop-filter:blur(16px);}
+#fbanner.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:all;}
+.fbe{font-size:2.6rem;display:block;}
+.fbt{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;margin-top:5px;letter-spacing:.5px;}
+.fbb{font-size:.71rem;color:var(--cream-d);margin-top:7px;line-height:1.6;}
+.fbb b{color:var(--cream);}
+
+/* RESULT */
+#roverlay{display:none;position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(30,20,40,.97) 40%,rgba(10,6,14,.99));border-radius:var(--r);z-index:55;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;padding:20px;}
+#roverlay::before{content:'';position:absolute;inset:0;border-radius:var(--r);background:radial-gradient(ellipse at center top,rgba(201,168,76,.07),transparent 55%);pointer-events:none;}
+.rbig{font-size:4.5rem;animation:ba .7s ease infinite alternate;position:relative;z-index:1;}
+@keyframes ba{from{transform:scale(1) rotate(-2deg)}to{transform:scale(1.08) rotate(2deg)}}
+#rtitle{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:300;color:var(--gold-l);letter-spacing:2px;position:relative;z-index:1;}
+#rtitle::after{content:'';display:block;width:55px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:7px auto 0;}
+#rstars{font-size:1.4rem;letter-spacing:4px;position:relative;z-index:1;}
+#rpts{font-size:.82rem;color:var(--gold-d);letter-spacing:.5px;position:relative;z-index:1;}
+#runlock{font-size:.74rem;color:var(--mint);font-weight:500;background:rgba(92,200,184,.07);border-radius:var(--r-sm);padding:6px 14px;border:1px solid rgba(92,200,184,.22);letter-spacing:.3px;position:relative;z-index:1;}
+
+/* BOOK MODAL */
+#boverlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(6,4,10,.75);backdrop-filter:blur(12px);align-items:center;justify-content:center;}
+#boverlay.open{display:flex;}
+#bmodal{background:linear-gradient(160deg,#1a1224,#120c1a);border-radius:20px;width:min(640px,96vw);max-height:88vh;box-shadow:0 40px 100px rgba(0,0,0,.8),0 0 0 1px rgba(201,168,76,.18);border:1px solid rgba(201,168,76,.16);display:flex;flex-direction:column;overflow:hidden;animation:bO .3s cubic-bezier(.34,1.2,.64,1);}
+@keyframes bO{from{transform:scale(.88) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+#bhdr{padding:14px 20px;background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.03));border-bottom:1px solid rgba(201,168,76,.12);display:flex;align-items:center;justify-content:space-between;}
+#bhdr h2{font-family:'Cormorant Garamond',serif;color:var(--gold-l);font-size:1.15rem;font-weight:300;letter-spacing:3px;}
+#bclose{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;width:30px;height:30px;color:var(--cream-d);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;touch-action:manipulation;}
+#bclose:hover{background:rgba(232,100,122,.15);border-color:rgba(232,100,122,.3);color:var(--rose);}
+#btabs{display:flex;overflow-x:auto;background:rgba(0,0,0,.3);padding:8px 12px 0;border-bottom:1px solid rgba(201,168,76,.07);}
+#btabs::-webkit-scrollbar{height:0;}
+.btab{background:transparent;border:1px solid transparent;border-bottom:none;border-radius:9px 9px 0 0;padding:6px 13px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:.73rem;cursor:pointer;color:rgba(255,255,255,.28);transition:.2s;white-space:nowrap;touch-action:manipulation;}
+.btab.active{background:rgba(201,168,76,.07);border-color:rgba(201,168,76,.18);color:var(--gold-l);}
+.btab.ltab{opacity:.28;cursor:not-allowed;}
+#bcontent{flex:1;overflow-y:auto;padding:18px 20px;}
+.rpage{display:none;}.rpage.active{display:block;}
+.rpttl{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(201,168,76,.1);}
+.rpttl .be{font-size:2.2rem;}
+.rpttl-name{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;color:var(--cream);letter-spacing:1.5px;}
+.rpttl-diff{font-size:.6rem;color:var(--gold-d);letter-spacing:3px;margin-top:1px;}
+.rpdesc{font-size:.74rem;color:var(--cream-d);line-height:1.6;margin-bottom:12px;}
+.sec-lbl{font-size:.56rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold-d);margin-bottom:7px;font-weight:500;}
+.itable{width:100%;border-collapse:separate;border-spacing:0 3px;}
+.itable th{font-size:.6rem;letter-spacing:3px;color:rgba(255,255,255,.18);text-transform:uppercase;padding:3px 8px;text-align:left;font-weight:500;}
+.itable td{background:rgba(255,255,255,.02);padding:7px 10px;font-size:.76rem;color:var(--cream-d);}
+.itable tr td:first-child{border-radius:8px 0 0 8px;border:1px solid rgba(255,255,255,.04);border-right:none;}
+.itable tr td:last-child{border-radius:0 8px 8px 0;text-align:right;color:var(--gold-l);font-weight:500;border:1px solid rgba(255,255,255,.04);border-left:none;}
+.rslist{margin-top:12px;}
+.srow{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;}
+.snum{width:20px;height:20px;min-width:20px;border-radius:50%;background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.04));border:1px solid rgba(201,168,76,.28);color:var(--gold-l);font-size:.62rem;font-weight:600;display:flex;align-items:center;justify-content:center;}
+.stxt{font-size:.74rem;color:var(--cream-d);line-height:1.5;padding-top:1px;}
+.stxt b{color:var(--cream);font-weight:500;}
+.lmsg{text-align:center;padding:32px 18px;}
+.lmsg .le{font-size:2.8rem;display:block;margin-bottom:9px;opacity:.35;}
+.lmsg p{font-size:.78rem;color:rgba(255,255,255,.22);line-height:1.6;}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(8px);background:linear-gradient(135deg,rgba(28,20,36,.97),rgba(20,14,26,.99));border:1px solid rgba(201,168,76,.32);border-radius:28px;padding:8px 20px;box-shadow:0 8px 28px rgba(0,0,0,.5),0 0 16px rgba(201,168,76,.08);font-weight:400;font-size:.77rem;color:var(--cream-d);opacity:0;transition:all .25s;z-index:100;pointer-events:none;white-space:nowrap;backdrop-filter:blur(10px);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* PARTICLES */
+.cp{position:fixed;pointer-events:none;z-index:999;border-radius:2px;animation:cf 1.9s ease-in forwards;}
+@keyframes cf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.part{position:absolute;pointer-events:none;font-size:1rem;animation:pu .9s ease-out forwards;z-index:30;}
+@keyframes pu{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-55px) scale(.3);opacity:0}}
+.sparkle{position:absolute;pointer-events:none;font-size:.8rem;animation:sp .6s ease-out forwards;z-index:40;}
+@keyframes sp{0%{transform:translate(-50%,-50%) scale(0);opacity:1}60%{transform:translate(-50%,-65%) scale(1.2);opacity:1}100%{transform:translate(-50%,-85%) scale(0);opacity:0}}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2);border-radius:4px;}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  header{padding:10px 12px 8px;flex-wrap:wrap;gap:5px;}
+  .logo{font-size:1.4rem;letter-spacing:2px;}
+  .logo span{display:none;}
+  .hstat{padding:3px 8px;font-size:.68rem;}
+  #book-btn{padding:5px 10px;font-size:.7rem;}
+  #wrap{padding:8px 8px 24px;gap:8px;}
+  /* Recipe bar scrolls horizontally */
+  #recipe-bar{padding:10px 10px 8px;}
+  .rcard{min-width:68px;padding:8px 9px;}
+  .rc-e{font-size:1.5rem;}
+  .rc-n{font-size:.75rem;}
+  /* Kitchen */
+  #kitchen{min-height:auto;}
+  #sdisp{padding:11px 12px 4px;}
+  #stitle{font-size:1.1rem;}
+  #sdesc{font-size:.7rem;}
+  #shint{font-size:.64rem;}
+  /* Workbench */
+  #wb{gap:14px;padding:3px 12px 7px;}
+  #bowl{width:100px;height:72px;}
+  #bfill{border-radius:0 0 48px 48px/0 0 36px 36px;}
+  #oven{width:90px;padding:6px;}
+  #owin{width:76px;height:57px;}
+  #oitem{font-size:1.7rem;}
+  /* Ingredients */
+  #ingsec{padding:0 7px 3px;}
+  .iitem{min-width:72px;padding:6px 7px;}
+  .ie{font-size:1.3rem;}
+  .iname{font-size:.54rem;}
+  .ibtn{width:28px;height:28px;font-size:1.05rem;border-radius:8px;}
+  .ival{font-size:.88rem;min-width:26px;}
+  /* Actions */
+  #arow{padding:0 7px 8px;gap:6px;}
+  .abtn{padding:8px 14px;font-size:.76rem;}
+  /* Decor */
+  #dcanvas{width:100% !important;height:120px !important;}
+  .dbtn{padding:4px 8px;font-size:.65rem;}
+  /* Result */
+  .rbig{font-size:3.8rem;}
+  #rtitle{font-size:1.6rem;}
+  /* Book modal — bottom sheet */
+  #bmodal{width:100vw;max-height:90vh;border-radius:18px 18px 0 0;position:fixed;bottom:0;left:0;right:0;animation:su .3s cubic-bezier(.34,1.2,.64,1);}
+  @keyframes su{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+  #boverlay{align-items:flex-end;}
+  #bcontent{padding:14px 14px;}
+  #toast{bottom:16px;}
+  .dot{width:16px;}.dot.active{width:24px;}
+  #sdots{margin-top:4px;}
+}
+@media(max-width:380px){
+  .hstat:nth-child(2){display:none;}
+  .iitem{min-width:64px;}
+  .ibtn{width:26px;height:26px;}
+}
+</style>
+</head>
+<body>
+<div class="bg-wrap">
+  <div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
+</div>
+<div class="bg-grid"></div>
+
+<header>
+  <div class="logo">La Pâtisserie<span>кондитерская</span></div>
+  <div class="hstats">
+    <div class="hstat">✦ <strong id="sv">0</strong></div>
+    <div class="hstat">🎂 <strong id="bv">0</strong></div>
+    <div class="hstat">◈ ур.<strong id="lv">1</strong></div>
+    <button id="book-btn" onclick="openBook()">📖 Рецепты</button>
+  </div>
+</header>
+
+<div id="wrap">
+
+  <!-- RECIPE SELECTOR — horizontal scrollable bar -->
+  <div id="recipe-bar">
+    <div class="rb-label">Выберите блюдо</div>
+    <div id="rlist"></div>
+  </div>
+
+  <!-- KITCHEN -->
+  <div id="kitchen">
+    <div class="karc a"></div><div class="karc b"></div>
+    <div class="wtop"></div>
+
+    <div id="sdisp">
+      <div class="stepnum" id="stepnum"></div>
+      <div id="stitle">Выберите блюдо выше ↑</div>
+      <div id="sdesc">Нажмите на карточку с рецептом</div>
+      <div id="shint"></div>
+    </div>
+    <div id="sdots"></div>
+
+    <div id="wb">
+      <div id="bwrap">
+        <div id="bowl"><div id="bfill"></div></div>
+        <div id="blabel">Миска</div>
+      </div>
+      <div id="oven">
+        <div id="owin"><div id="oglow"></div><div id="oitem"></div></div>
+        <div id="obar-w"><div id="obar"></div></div>
+        <div id="otemp">Духовка</div>
+      </div>
+    </div>
+
+    <div id="ingsec"><div id="inggrid"></div></div>
+    <div id="decar">
+      <canvas id="dcanvas" width="280" height="130"></canvas>
+      <div id="dtools"></div>
+    </div>
+    <div id="arow"></div>
+
+    <!-- feedback -->
+    <div id="fbanner">
+      <span class="fbe" id="fbe">❓</span>
+      <div class="fbt" id="fbt"></div>
+      <div class="fbb" id="fbb"></div>
+      <button class="abtn" style="margin-top:11px" onclick="closeFB()">Понятно</button>
+    </div>
+
+    <!-- result -->
+    <div id="roverlay">
+      <div class="rbig" id="re">🎂</div>
+      <div id="rtitle">Готово!</div>
+      <div id="rstars">★★★</div>
+      <div id="rpts">+30 очков</div>
+      <div id="runlock" style="display:none"></div>
+      <button class="abtn green" style="margin-top:12px" onclick="closeResult()">✦ Продолжить</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOOK -->
+<div id="boverlay" onclick="if(event.target===this)closeBook()">
+  <div id="bmodal">
+    <div id="bhdr">
+      <h2>◈ Книга рецептов</h2>
+      <button id="bclose" onclick="closeBook()">✕</button>
+    </div>
+    <div id="btabs"></div>
+    <div id="bcontent"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const RECIPES=[
+  {id:'cupcake',name:'Капкейк',emoji:'🧁',unlockAfter:null,diff:1,
+   color:'rgba(232,100,122,.7)',fillColor:'rgba(232,100,122,.3)',
+   desc:'Нежный кексик с кремом — идеально для начинающих кондитеров.',
+   steps:[
+     {type:'ingredients',title:'Замесить тесто',desc:'Выберите правильное количество каждого ингредиента',hint:'◈ Подсказка: загляните в книгу рецептов 📖',
+      ingredients:[
+        {emoji:'🌾',name:'Мука',   unit:'г', correct:200,min:50, max:350,step:25},
+        {emoji:'🥚',name:'Яйца',  unit:'шт',correct:2,  min:1,  max:5,  step:1},
+        {emoji:'🥛',name:'Молоко',unit:'мл',correct:100,min:25, max:200,step:25},
+        {emoji:'🧈',name:'Масло', unit:'г', correct:80, min:20, max:160,step:20},
+        {emoji:'🍬',name:'Сахар', unit:'г', correct:150,min:50, max:300,step:25},
+      ]},
+     {type:'mix',title:'Перемешать',desc:'Хорошо перемешайте все ингредиенты',hint:'Нажимайте кнопку несколько раз'},
+     {type:'bake',title:'Выпекать 20 минут',desc:'180°C — следите за временем',hint:'',time:4000},
+     {type:'decorate',title:'Украсить',desc:'Нанесите крем и добавьте декор',hint:'Рисуйте прямо по изделию'},
+   ]},
+  {id:'cake',name:'Торт',emoji:'🎂',unlockAfter:'cupcake',diff:2,
+   color:'rgba(244,162,97,.7)',fillColor:'rgba(244,162,97,.3)',
+   desc:'Классический шоколадный торт — чуть сложнее, но невероятно вкусный.',
+   steps:[
+     {type:'ingredients',title:'Тесто для торта',desc:'Торт требует точных пропорций — будьте внимательны',hint:'◈ Откройте книгу рецептов для подсказки',
+      ingredients:[
+        {emoji:'🌾',name:'Мука',  unit:'г', correct:300,min:100,max:500,step:50},
+        {emoji:'🥚',name:'Яйца', unit:'шт',correct:4,  min:1,  max:8,  step:1},
+        {emoji:'🍫',name:'Какао',unit:'г', correct:50, min:10, max:120,step:10},
+        {emoji:'🧈',name:'Масло',unit:'г', correct:100,min:20, max:200,step:20},
+        {emoji:'🍬',name:'Сахар',unit:'г', correct:200,min:50, max:400,step:50},
+        {emoji:'🥛',name:'Молоко',unit:'мл',correct:150,min:50,max:300,step:25},
+      ]},
+     {type:'mix',title:'Взбить миксером',desc:'Взбивайте тесто 5 минут до однородности'},
+     {type:'bake',title:'Выпекать 40 минут',desc:'170°C — важно не передержать',time:5000},
+     {type:'decorate',title:'Украсить торт',desc:'Покройте кремом и добавьте декор'},
+   ]},
+  {id:'donut',name:'Пончики',emoji:'🍩',unlockAfter:'cake',diff:2,
+   color:'rgba(255,217,61,.6)',fillColor:'rgba(255,217,61,.2)',
+   desc:'Воздушные пончики в глазури — любимое лакомство всех детей.',
+   steps:[
+     {type:'ingredients',title:'Дрожжевое тесто',desc:'Дрожжевое тесто требует особой точности',hint:'',
+      ingredients:[
+        {emoji:'🌾',name:'Мука',   unit:'г', correct:400,min:100,max:600,step:50},
+        {emoji:'🥚',name:'Яйца',  unit:'шт',correct:2,  min:1,  max:5,  step:1},
+        {emoji:'🧈',name:'Масло', unit:'г', correct:60, min:10, max:120,step:10},
+        {emoji:'🍬',name:'Сахар', unit:'г', correct:80, min:10, max:200,step:10},
+        {emoji:'🧂',name:'Дрожжи',unit:'г', correct:7,  min:1,  max:20, step:1},
+        {emoji:'🥛',name:'Молоко',unit:'мл',correct:200,min:50, max:400,step:25},
+      ]},
+     {type:'mix',title:'Замесить тесто',desc:'Вымешивайте тесто руками — 10 минут'},
+     {type:'bake',title:'Жарить пончики',desc:'Обжаривайте во фритюре до золотого цвета',time:3500},
+     {type:'decorate',title:'Добавить глазурь',desc:'Покройте глазурью и посыпкой'},
+   ]},
+  {id:'macaron',name:'Макарон',emoji:'🍪',unlockAfter:'donut',diff:3,
+   color:'rgba(200,162,200,.7)',fillColor:'rgba(200,162,200,.25)',
+   desc:'Французское пирожное — капризное, требует точности до грамма.',
+   steps:[
+     {type:'ingredients',title:'Миндальное тесто',desc:'Каждый грамм важен — будьте максимально точны',hint:'◈ Это сложный рецепт — обязательно откройте книгу',
+      ingredients:[
+        {emoji:'🌰',name:'Миндаль',   unit:'г',correct:125,min:50, max:250,step:25},
+        {emoji:'🍬',name:'Сах.пудра', unit:'г',correct:225,min:100,max:350,step:25},
+        {emoji:'🥚',name:'Белки',     unit:'г',correct:100,min:30, max:180,step:10},
+        {emoji:'🍬',name:'Сахар',     unit:'г',correct:50, min:10, max:120,step:10},
+        {emoji:'🎨',name:'Краситель', unit:'г',correct:2,  min:1,  max:8,  step:1},
+      ]},
+     {type:'mix',title:'Макаронаж',desc:'Аккуратно складывайте тесто лопаткой'},
+     {type:'bake',title:'Выпекать 15 минут',desc:'140°C — дверь духовки не открывать',time:4500},
+     {type:'decorate',title:'Сборка',desc:'Склейте половинки ганашем'},
+   ]},
+  {id:'icecream',name:'Мороженое',emoji:'🍦',unlockAfter:'macaron',diff:2,
+   color:'rgba(92,200,184,.6)',fillColor:'rgba(92,200,184,.2)',
+   desc:'Домашнее мороженое из натуральных сливок — просто объедение.',
+   steps:[
+     {type:'ingredients',title:'Крем-основа',desc:'Приготовьте базу для мороженого',hint:'',
+      ingredients:[
+        {emoji:'🥛',name:'Сливки',unit:'мл',correct:500,min:100,max:700,step:50},
+        {emoji:'🍬',name:'Сахар', unit:'г', correct:150,min:50, max:300,step:25},
+        {emoji:'🥚',name:'Желтки',unit:'шт',correct:4,  min:1,  max:8,  step:1},
+        {emoji:'🌸',name:'Ваниль',unit:'г', correct:5,  min:1,  max:15, step:1},
+      ]},
+     {type:'mix',title:'Завариваем крем',desc:'Нагрейте до 82°C, помешивая'},
+     {type:'bake',title:'Заморозить',desc:'Помешивайте каждый час',time:3000},
+     {type:'decorate',title:'Сервировка',desc:'Выложите шариками, добавьте топпинги'},
+   ]},
+];
+
+// STATE
+let score=0,level=1,baked=0;
+let unlocked=new Set(['cupcake']),newU=new Set();
+let cur=null,cStep=0,ingV={};
+let mixCnt=0,mixDone=false,bakeT=null;
+let isDrawing=false,dMode='stamp',dColor='🍓';
+
+// RENDER RECIPES
+function renderRecipes(){
+  const el=document.getElementById('rlist');el.innerHTML='';
+  RECIPES.forEach(r=>{
+    const ok=unlocked.has(r.id),isNew=newU.has(r.id);
+    const d=document.createElement('div');
+    d.className='rcard'+(ok?'':' locked')+(cur?.id===r.id?' selected':'');
+    d.innerHTML=`<span class="rc-e">${r.emoji}</span><div class="rc-n">${r.name}</div><div class="rc-d">${'★'.repeat(r.diff)}${'☆'.repeat(3-r.diff)}</div>${!ok?'<div class="lbadge">🔒</div>':''}${isNew&&ok?'<div class="nbadge">new</div>':''}`;
+    if(ok) d.onclick=()=>selectRecipe(r);
+    el.appendChild(d);
+  });
+}
+
+function selectRecipe(r){
+  cur=r;cStep=0;ingV={};
+  newU.delete(r.id);
+  resetBowl();resetOven();closeFB();
+  document.getElementById('roverlay').style.display='none';
+  renderRecipes();renderStep();
+  toast(`${r.emoji}  ${r.name}`);
+}
+
+// RENDER STEP
+function renderStep(){
+  if(!cur) return;
+  const s=cur.steps[cStep];
+  document.getElementById('stepnum').textContent=`Шаг ${cStep+1} из ${cur.steps.length}`;
+  document.getElementById('stitle').textContent=s.title;
+  document.getElementById('sdesc').textContent=s.desc;
+  document.getElementById('shint').textContent=s.hint||'';
+  const dots=document.getElementById('sdots');dots.innerHTML='';
+  cur.steps.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i<cStep?' done':i===cStep?' active':'');
+    dots.appendChild(d);
+  });
+  const ig=document.getElementById('inggrid'),ar=document.getElementById('arow');
+  const da=document.getElementById('decar'),wb=document.getElementById('wb'),is=document.getElementById('ingsec');
+  ig.innerHTML='';ar.innerHTML='';
+  da.style.display='none';wb.style.display='flex';is.style.display='none';
+
+  if(s.type==='ingredients'){
+    is.style.display='flex';
+    s.ingredients.forEach(ing=>{
+      if(!(ing.name in ingV)) ingV[ing.name]=ing.min;
+      ig.appendChild(mkIng(ing));
+    });
+    ar.appendChild(mkBtn('rose','✦ Проверить рецепт',checkIng));
+  }
+  if(s.type==='mix'){
+    mixCnt=0;mixDone=false;updBowlMix(0);
+    const btn=mkBtn('','🔄 Мешать  (0 / 6)',null);
+    btn.id='mbtn';btn.onclick=()=>doMix(btn);ar.appendChild(btn);
+  }
+  if(s.type==='bake'){
+    document.getElementById('oitem').textContent=cur.emoji;
+    ar.appendChild(mkBtn('rose','🔥 Поставить в духовку',()=>startBake(s.time)));
+  }
+  if(s.type==='decorate'){
+    wb.style.display='none';da.style.display='flex';
+    setupDecor();
+    ar.appendChild(mkBtn('green','✦ Подать блюдо',finish));
+  }
+}
+
+function mkBtn(cls,txt,fn){
+  const b=document.createElement('button');
+  b.className='abtn'+(cls?' '+cls:'');b.textContent=txt;
+  if(fn) b.onclick=fn;
+  return b;
+}
+
+// INGREDIENTS
+function mkIng(ing){
+  const d=document.createElement('div');d.className='iitem';d.id='ii-'+ing.name;
+  d.innerHTML=`<div class="ie">${ing.emoji}</div><div class="iname">${ing.name}</div><div class="ictrls"><button class="ibtn minus" onclick="chIng('${ing.name}',-${ing.step})">−</button><div class="ival" id="v-${ing.name}">${ingV[ing.name]}</div><button class="ibtn" onclick="chIng('${ing.name}',${ing.step})">+</button></div><div class="iunit">${ing.unit}</div><div class="ifb" id="ifb-${ing.name}"></div>`;
+  return d;
+}
+function chIng(name,delta){
+  const s=cur.steps[cStep];
+  const ing=s.ingredients.find(i=>i.name===name);if(!ing) return;
+  let v=(ingV[name]??ing.min)+delta;
+  v=Math.max(ing.min,Math.min(ing.max,v));
+  ingV[name]=v;
+  const el=document.getElementById('v-'+name);if(el) el.textContent=v;
+  spawnSparkle('ii-'+name);
+}
+function checkIng(){
+  const s=cur.steps[cStep];let allOk=true;const errs=[];
+  s.ingredients.forEach(ing=>{
+    const v=ingV[ing.name]??ing.min;
+    const el=document.getElementById('ii-'+ing.name);
+    const fb=document.getElementById('ifb-'+ing.name);
+    if(Math.abs(v-ing.correct)<=ing.step){
+      el.classList.remove('wrong');el.classList.add('correct');
+      if(fb){fb.textContent='✓';fb.style.color='var(--mint)';}
+    } else {
+      el.classList.add('wrong');el.classList.remove('correct');allOk=false;
+      const diff=v-ing.correct;
+      errs.push(`${ing.emoji} <b>${ing.name}</b>: ${diff>0?'слишком много':'слишком мало'} (${v} вместо ${ing.correct} ${ing.unit})`);
+      if(fb){fb.textContent=diff>0?'↑ много':'↓ мало';fb.style.color='var(--rose)';}
+    }
+  });
+  if(allOk){
+    showFB('✦','Ингредиентов добавлено нужное количество!','Точное соблюдение пропорций — признак настоящего мастера.',true);
+    setTimeout(()=>{closeFB();nextStep();},1800);
+  } else {
+    showFB('◈','Что-то пошло не так','Исправьте ошибки:<br>'+errs.join('<br>'),false);
+  }
+}
+
+// MIX
+function doMix(btn){
+  if(mixDone) return;
+  mixCnt++;btn.textContent=`🔄 Мешать  (${mixCnt} / 6)`;
+  updBowlMix(mixCnt/6);spawnP('✦');
+  if(mixCnt>=6){
+    mixDone=true;btn.disabled=true;btn.textContent='✦ Перемешано';
+    toast('Тесто готово к выпечке');
+    setTimeout(nextStep,800);
+  }
+}
+function updBowlMix(p){
+  const f=document.getElementById('bfill');
+  f.style.height=(38+p*42)+'%';
+  f.style.background=cur?cur.color:'rgba(201,168,76,.4)';
+}
+
+// BAKE
+function startBake(dur){
+  const ob=document.getElementById('obar'),og=document.getElementById('oglow'),ar=document.getElementById('arow'),oi=document.getElementById('oitem');
+  ar.innerHTML='<div style="color:var(--gold-d);font-size:.74rem;letter-spacing:2px;padding:6px">— выпекается —</div>';
+  og.style.background='radial-gradient(circle at center,rgba(255,120,0,.55) 10%,rgba(255,60,0,.18) 50%,transparent 75%)';
+  let p=0;
+  bakeT=setInterval(()=>{
+    p+=100/(dur/100);ob.style.width=Math.min(p,100)+'%';
+    if(p>50) oi.style.filter='drop-shadow(0 0 8px rgba(255,150,0,.7))';
+    if(p>=100){
+      clearInterval(bakeT);bakeT=null;
+      og.style.background='radial-gradient(circle at center,rgba(255,200,0,.28) 20%,transparent 70%)';
+      spawnP('🔥');toast('Готово — доставайте из духовки');
+      const btn=mkBtn('green','🧤 Достать из духовки',()=>{resetOven();nextStep();});
+      ar.innerHTML='';ar.appendChild(btn);
+    }
+  },100);
+}
+
+// STEPS
+function nextStep(){
+  cStep++;ingV={};
+  if(cStep>=cur.steps.length){finish();return;}
+  resetBowl();renderStep();spawnP('✦');
+}
+function finish(){
+  baked++;
+  const pts=cur.diff*20+15;score+=pts;level=1+Math.floor(score/80);
+  updScore();
+  let uMsg=null;
+  const idx=RECIPES.findIndex(r=>r.id===cur.id);
+  if(idx>=0&&idx<RECIPES.length-1){
+    const nxt=RECIPES[idx+1];
+    if(!unlocked.has(nxt.id)){
+      unlocked.add(nxt.id);newU.add(nxt.id);
+      uMsg=`${nxt.emoji}  Открыт новый рецепт: ${nxt.name}`;
+    }
+  }
+  confetti();renderRecipes();
+  document.getElementById('re').textContent=cur.emoji;
+  document.getElementById('rtitle').textContent=cur.name+' — готово';
+  document.getElementById('rstars').textContent='★'.repeat(cur.diff)+'☆'.repeat(3-cur.diff);
+  document.getElementById('rpts').textContent=`+${pts} очков · итого ${score}`;
+  const uel=document.getElementById('runlock');
+  if(uMsg){uel.textContent=uMsg;uel.style.display='block';}else uel.style.display='none';
+  document.getElementById('roverlay').style.display='flex';
+}
+function closeResult(){
+  document.getElementById('roverlay').style.display='none';
+  cur=null;cStep=0;
+  document.getElementById('stepnum').textContent='';
+  document.getElementById('stitle').textContent='Выберите блюдо выше ↑';
+  document.getElementById('sdesc').textContent='Нажмите на карточку с рецептом';
+  document.getElementById('shint').textContent='';
+  document.getElementById('sdots').innerHTML='';
+  document.getElementById('ingsec').style.display='none';
+  document.getElementById('arow').innerHTML='';
+  document.getElementById('decar').style.display='none';
+  document.getElementById('wb').style.display='flex';
+  resetBowl();resetOven();renderRecipes();
+}
+
+// FEEDBACK
+function showFB(e,t,b,good){
+  document.getElementById('fbe').textContent=e;
+  document.getElementById('fbt').textContent=t;
+  document.getElementById('fbt').style.color=good?'var(--mint)':'var(--rose)';
+  document.getElementById('fbb').innerHTML=b;
+  document.getElementById('fbanner').classList.add('show');
+}
+function closeFB(){document.getElementById('fbanner').classList.remove('show');}
+
+// DECOR
+function setupDecor(){
+  const c=document.getElementById('dcanvas'),ctx=c.getContext('2d');
+  const isMob=window.innerWidth<=600;
+  const w=isMob?Math.min(window.innerWidth-36,320):280;
+  const h=isMob?118:130;
+  c.width=w;c.height=h;c.style.width=w+'px';c.style.height=h+'px';
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle='rgba(30,20,40,.9)';
+  ctx.beginPath();ctx.roundRect(5,5,w-10,h-10,11);ctx.fill();
+  ctx.strokeStyle=cur.color;ctx.lineWidth=1;
+  ctx.beginPath();ctx.roundRect(5,5,w-10,h-10,11);ctx.stroke();
+  ctx.font=`${Math.round(h*.5)}px serif`;ctx.textAlign='center';
+  ctx.fillText(cur.emoji,w/2,h*.72);
+  const tools=[
+    {l:'🍓 Ягоды',m:'stamp',v:'🍓'},{l:'🌸 Цветок',m:'stamp',v:'🌸'},
+    {l:'⭐ Звезда',m:'stamp',v:'⭐'},{l:'🎀 Бант',m:'stamp',v:'🎀'},
+    {l:'✦ Золото',m:'draw',v:'#c9a84c'},{l:'◈ Крем',m:'draw',v:'#f5efe6'},
+    {l:'✿ Посыпка',m:'sprinkle',v:'r'},{l:'◉ Шоко',m:'draw',v:'#5c3a1a'},
+  ];
+  const dt=document.getElementById('dtools');dt.innerHTML='';
+  tools.forEach((t,i)=>{
+    const btn=document.createElement('button');
+    btn.className='dbtn'+(i===0?' active':'');btn.textContent=t.l;
+    btn.onclick=()=>{document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');dMode=t.m;dColor=t.v;};
+    dt.appendChild(btn);
+  });
+  function draw(e){
+    const r=c.getBoundingClientRect();
+    const src=e.touches?e.touches[0]:e;
+    const x=src.clientX-r.left,y=src.clientY-r.top;
+    if(dMode==='draw'){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=dColor;ctx.fill();}
+    else if(dMode==='stamp'){ctx.font='1.25rem serif';ctx.textAlign='center';ctx.fillText(dColor,x,y+5);isDrawing=false;}
+    else{const cols=['#c9a84c','#e8647a','#5cc8b8','#c8a2c8','#f4a261'];
+      for(let i=0;i<9;i++){ctx.fillStyle=cols[Math.floor(Math.random()*cols.length)];ctx.fillRect(x+(Math.random()-.5)*40,y+(Math.random()-.5)*18,2.5,7);}
+    }
+  }
+  c.onmousedown=(e)=>{isDrawing=true;draw(e);};
+  c.onmousemove=(e)=>{if(isDrawing)draw(e);};
+  c.onmouseup=c.onmouseleave=()=>isDrawing=false;
+  c.ontouchstart=(e)=>{e.preventDefault();isDrawing=true;draw(e);};
+  c.ontouchmove=(e)=>{e.preventDefault();if(isDrawing)draw(e);};
+  c.ontouchend=()=>isDrawing=false;
+}
+
+// BOOK
+function openBook(){
+  const tabs=document.getElementById('btabs'),bc=document.getElementById('bcontent');
+  tabs.innerHTML='';bc.innerHTML='';
+  RECIPES.forEach((r,i)=>{
+    const ok=unlocked.has(r.id);
+    const tab=document.createElement('button');
+    tab.className='btab'+(i===0?' active':'')+(ok?'':' ltab');
+    tab.textContent=r.emoji+'  '+r.name;
+    if(ok) tab.onclick=()=>showBPage(r.id);
+    tabs.appendChild(tab);
+    const pg=document.createElement('div');
+    pg.className='rpage'+(i===0?' active':'');pg.id='bp-'+r.id;
+    if(ok){
+      const is=r.steps.find(s=>s.type==='ingredients');
+      const rows=is?is.ingredients.map(ing=>`<tr><td>${ing.emoji} ${ing.name}</td><td>${ing.correct} ${ing.unit}</td></tr>`).join(''):'';
+      const stps=r.steps.map((s,si)=>`<div class="srow"><div class="snum">${si+1}</div><div class="stxt"><b>${s.title}</b> — ${s.desc}</div></div>`).join('');
+      pg.innerHTML=`<div class="rpttl"><span class="be">${r.emoji}</span><div><div class="rpttl-name">${r.name}</div><div class="rpttl-diff">${'★'.repeat(r.diff)} СЛОЖНОСТЬ</div></div></div><p class="rpdesc">${r.desc}</p>${is?`<div class="sec-lbl">Ингредиенты</div><table class="itable"><thead><tr><th>Продукт</th><th>Количество</th></tr></thead><tbody>${rows}</tbody></table>`:''}<div class="rslist"><div class="sec-lbl" style="margin-top:13px">Этапы приготовления</div>${stps}</div>`;
+    } else {
+      pg.innerHTML=`<div class="lmsg"><span class="le">🔒</span><p>Этот рецепт ещё не открыт.<br>Приготовьте предыдущее блюдо, чтобы разблокировать его.</p></div>`;
+    }
+    bc.appendChild(pg);
+  });
+  document.getElementById('boverlay').classList.add('open');
+}
+function showBPage(id){
+  document.querySelectorAll('.btab').forEach((t,i)=>{t.classList.toggle('active',RECIPES[i].id===id);});
+  document.querySelectorAll('.rpage').forEach(p=>{p.classList.toggle('active',p.id==='bp-'+id);});
+}
+function closeBook(){document.getElementById('boverlay').classList.remove('open');}
+
+// HELPERS
+function resetBowl(){const f=document.getElementById('bfill');f.style.height='0%';f.style.background='';}
+function resetOven(){
+  document.getElementById('obar').style.width='0%';
+  document.getElementById('oglow').style.background='';
+  document.getElementById('oitem').textContent='';
+  document.getElementById('oitem').style.filter='';
+  if(bakeT){clearInterval(bakeT);bakeT=null;}
+}
+function updScore(){
+  document.getElementById('sv').textContent=score;
+  document.getElementById('lv').textContent=level;
+  document.getElementById('bv').textContent=baked;
+}
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);
+}
+function spawnP(emoji){
+  const k=document.getElementById('kitchen');
+  const p=document.createElement('div');p.className='part';p.textContent=emoji;
+  p.style.left=(15+Math.random()*70)+'%';p.style.bottom='42%';
+  k.appendChild(p);setTimeout(()=>p.remove(),950);
+}
+function spawnSparkle(id){
+  const el=document.getElementById(id);if(!el) return;
+  const s=document.createElement('div');s.className='sparkle';s.textContent='✦';
+  s.style.left='50%';s.style.top='18px';s.style.color='var(--gold)';
+  el.appendChild(s);setTimeout(()=>s.remove(),650);
+}
+function confetti(){
+  const cols=['#c9a84c','#e8647a','#5cc8b8','#c8a2c8','#f4a261','#e8c97a'];
+  for(let i=0;i<70;i++){
+    const c=document.createElement('div');c.className='cp';
+    c.style.left=Math.random()*100+'vw';c.style.top='-10px';
+    c.style.background=cols[Math.floor(Math.random()*cols.length)];
+    c.style.width=(4+Math.random()*8)+'px';c.style.height=(4+Math.random()*8)+'px';
+    c.style.animationDuration=(1.4+Math.random()*.9)+'s';
+    c.style.animationDelay=Math.random()*.4+'s';
+    document.body.appendChild(c);setTimeout(()=>c.remove(),2700);
+  }
+}
+
+renderRecipes();updScore();
+</script>
+</body>
+</html>
