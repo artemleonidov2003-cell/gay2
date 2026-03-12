@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Pâtisserie — Кондитерская</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg0: #0e0a0f;
+  --bg1: #150f18;
+  --bg2: #1c1422;
+  --bg3: #241a2c;
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --gold-dim: #7a6230;
+  --rose: #e8647a;
+  --rose-dim: #8b3d4a;
+  --cream: #f5efe6;
+  --cream-dim: #bfb3a0;
+  --mint: #5cc8b8;
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(201,168,76,0.18);
+  --shadow-gold: 0 8px 40px rgba(201,168,76,0.15);
+  --shadow-deep: 0 24px 80px rgba(0,0,0,0.6);
+  --r: 18px;
+  --r-sm: 12px;
+}
+
+/* ═══════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg0);
+  min-height: 100vh;
+  overflow: hidden;
+  color: var(--cream);
+  cursor: default;
+}
+
+/* ── ANIMATED BG ── */
+.bg-canvas {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  overflow: hidden;
+}
+.bg-orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); opacity: 0.22;
+  animation: orbFloat 14s ease-in-out infinite;
+}
+.bg-orb.o1 { width: 520px; height: 520px; background: radial-gradient(circle, #6b2d4a, transparent); top: -100px; left: -120px; animation-delay: 0s; }
+.bg-orb.o2 { width: 420px; height: 420px; background: radial-gradient(circle, #3d2a14, transparent); bottom: -80px; right: -80px; animation-delay: -5s; }
+.bg-orb.o3 { width: 300px; height: 300px; background: radial-gradient(circle, #1e3a2e, transparent); top: 40%; left: 40%; animation-delay: -9s; }
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(30px,-20px) scale(1.06); }
+  66% { transform: translate(-20px,25px) scale(0.96); }
+}
+
+/* Grid texture overlay */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ═══════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════ */
+header {
+  position: relative; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 22px 10px;
+  border-bottom: 1px solid rgba(201,168,76,0.12);
+}
+header::after {
+  content: '';
+  position: absolute; bottom: 0; left: 22px; right: 22px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.35;
+}
+
+.logo-wrap { display: flex; align-items: baseline; gap: 10px; }
+.logo-main {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; font-weight: 300; letter-spacing: 4px;
+  color: var(--gold-light);
+  text-shadow: 0 0 40px rgba(201,168,76,0.4);
+}
+.logo-sub {
+  font-size: .65rem; font-weight: 500; letter-spacing: 5px;
+  color: var(--gold-dim); text-transform: uppercase;
+}
+
+.header-stats { display: flex; gap: 8px; align-items: center; }
+.hstat {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 30px; padding: 5px 13px;
+  font-size: .75rem; font-weight: 500; color: var(--cream-dim);
+  backdrop-filter: blur(10px);
+  transition: border-color .3s;
+}
+.hstat:hover { border-color: rgba(201,168,76,0.4); }
+.hstat .ico { font-size: .9rem; }
+.hstat strong { color: var(--gold-light); font-weight: 600; }
+
+#book-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.18), rgba(201,168,76,0.06));
+  border: 1px solid rgba(201,168,76,0.4);
+  border-radius: var(--r-sm); padding: 7px 16px;
+  color: var(--gold-light); font-family: 'DM Sans', sans-serif;
+  font-weight: 500; font-size: .78rem; letter-spacing: 1px;
+  cursor: pointer; transition: all .25s;
+  backdrop-filter: blur(10px);
+}
+#book-btn:hover {
+  background: linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.12));
+  border-color: var(--gold); box-shadow: 0 4px 20px rgba(201,168,76,0.25);
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+#app {
+  display: flex; gap: 14px;
+  max-width: 1040px; margin: 0 auto;
+  padding: 14px 16px 14px;
+  height: calc(100vh - 66px);
+  position: relative; z-index: 10;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+#rpanel {
+  width: 196px; min-width: 196px;
+  background: linear-gradient(160deg, rgba(28,20,34,0.95), rgba(20,14,26,0.98));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r); padding: 14px 10px;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-deep);
+  display: flex; flex-direction: column; gap: 8px;
+  overflow-y: auto;
+}
+.panel-label {
+  font-size: .6rem; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--gold-dim); text-align: center; font-weight: 500;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(201,168,76,0.12);
+}
+
+.rcard {
+  position: relative; border-radius: var(--r-sm);
+  padding: 11px 10px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.02);
+  transition: all .25s; overflow: hidden;
+}
+.rcard::before {
+  content: ''; position: absolute; inset: 0; border-radius: var(--r-sm);
+  background: linear-gradient(135deg, rgba(201,168,76,0.08), transparent);
+  opacity: 0; transition: opacity .3s;
+}
+.rcard:hover:not(.locked)::before { opacity: 1; }
+.rcard:hover:not(.locked) {
+  border-color: rgba(201,168,76,0.35);
+  transform: translateX(3px);
+  box-shadow: 0 4px 20px rgba(201,168,76,0.1);
+}
+.rcard.selected {
+  border-color: rgba(201,168,76,0.55);
+  background: rgba(201,168,76,0.07);
+  box-shadow: 0 0 0 1px rgba(201,168,76,0.2), inset 0 0 20px rgba(201,168,76,0.05);
+}
+.rcard.selected::before { opacity: 1; }
+.rcard.locked { opacity: .35; cursor: not-allowed; filter: grayscale(1); }
+
+.rc-emoji { font-size: 1.9rem; display: block; text-align: center; }
+.rc-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400; font-size: .95rem; color: var(--cream);
+  text-align: center; margin-top: 3px; letter-spacing: .5px;
+}
+.rc-diff { display: flex; justify-content: center; gap: 2px; margin-top: 3px; }
+.rc-diff span { font-size: .55rem; }
+.lbadge {
+  position: absolute; top: 6px; right: 7px;
+  font-size: .55rem; background: rgba(255,255,255,0.08);
+  color: var(--cream-dim); border-radius: 6px; padding: 2px 5px; letter-spacing: 1px;
+}
+.nbadge {
+  position: absolute; top: 5px; right: 6px;
+  font-size: .55rem; background: linear-gradient(135deg,#5cc8b8,#3aaa98);
+  color: white; border-radius: 6px; padding: 2px 6px;
+  font-weight: 600; letter-spacing: 1px;
+  animation: nbpulse .8s ease infinite alternate;
+}
+@keyframes nbpulse { from{opacity:1;box-shadow:0 0 6px rgba(92,200,184,0.5)} to{opacity:.7;box-shadow:0 0 12px rgba(92,200,184,0.8)} }
+
+/* ═══════════════════════════════════════════
+   GAME AREA
+═══════════════════════════════════════════ */
+#game { flex: 1; display: flex; flex-direction: column; gap: 0; }
+
+/* ═══════════════════════════════════════════
+   KITCHEN — main stage
+═══════════════════════════════════════════ */
+#kitchen {
+  flex: 1;
+  background: linear-gradient(160deg, rgba(28,20,34,0.97), rgba(18,12,22,0.99));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-deep), inset 0 1px 0 rgba(201,168,76,0.1);
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+/* Decorative arcs */
+.kitchen-arc {
+  position: absolute; border-radius: 50%; pointer-events: none;
+}
+.arc1 {
+  width: 700px; height: 700px;
+  border: 1px solid rgba(201,168,76,0.06);
+  top: -380px; left: 50%; transform: translateX(-50%);
+}
+.arc2 {
+  width: 500px; height: 500px;
+  border: 1px solid rgba(201,168,76,0.04);
+  top: -280px; left: 50%; transform: translateX(-50%);
+}
+
+/* Counter / worktop */
+.worktop {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 44%;
+  background: linear-gradient(180deg, rgba(36,26,44,0.0), rgba(15,10,18,0.6));
+  border-top: 1px solid rgba(201,168,76,0.15);
+  z-index: 0;
+}
+.worktop::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.5), transparent);
+}
+
+/* ── STEP DISPLAY ── */
+#sdisp {
+  position: relative; z-index: 5;
+  text-align: center; padding: 16px 24px 6px; width: 100%;
+}
+.step-number {
+  font-size: .58rem; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--gold-dim); font-weight: 500; margin-bottom: 4px;
+}
+#stitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem; font-weight: 300; color: var(--cream);
+  letter-spacing: 1px; line-height: 1.2;
+}
+#sdesc { font-size: .75rem; color: var(--cream-dim); margin-top: 4px; font-weight: 400; }
+#shint {
+  font-size: .68rem; color: var(--gold); font-weight: 500;
+  margin-top: 3px; min-height: 14px; letter-spacing: .5px;
+}
+
+/* STEP DOTS */
+#sdots { display: flex; gap: 6px; justify-content: center; position: relative; z-index: 5; margin-top: 5px; }
+.dot {
+  width: 24px; height: 2px; border-radius: 2px;
+  background: rgba(201,168,76,0.18); transition: all .4s;
+}
+.dot.active { background: var(--gold); box-shadow: 0 0 8px rgba(201,168,76,0.6); width: 32px; }
+.dot.done { background: var(--mint); }
+
+/* ═══════════════════════════════════════════
+   WORKBENCH — bowl + oven
+═══════════════════════════════════════════ */
+#wb {
+  position: relative; z-index: 5;
+  display: flex; align-items: flex-end; justify-content: center;
+  gap: 22px; width: 100%; padding: 4px 18px 10px;
+}
+
+/* BOWL */
+#bwrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+#bowl {
+  width: 124px; height: 88px;
+  background: linear-gradient(180deg, rgba(40,30,50,0.9), rgba(25,18,32,0.95));
+  border-radius: 0 0 62px 62px / 0 0 48px 48px;
+  border: 2px solid rgba(201,168,76,0.2);
+  border-top: none;
+  position: relative; overflow: hidden;
+  box-shadow: inset 0 -4px 20px rgba(0,0,0,0.5), 0 6px 24px rgba(0,0,0,0.4),
+              0 0 0 1px rgba(201,168,76,0.08);
+}
+#bowl::after {
+  content: '';
+  position: absolute; top: 0; left: 20%; right: 20%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
+}
+#bfill {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 0%;
+  transition: height .4s cubic-bezier(.34,1.56,.64,1), background .5s ease;
+  border-radius: 0 0 60px 60px / 0 0 46px 46px;
+}
+#blabel {
+  font-size: .6rem; letter-spacing: 3px; color: var(--gold-dim);
+  font-weight: 500; text-transform: uppercase;
+}
+
+/* OVEN */
+#oven {
+  width: 108px;
+  background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+  border-radius: var(--r-sm); padding: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+}
+#oven::before {
+  content: ''; position: absolute; top: 3px; left: 3px; right: 3px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  border-radius: 2px;
+}
+#owin {
+  width: 90px; height: 68px; background: #0d0d0d;
+  border-radius: 8px; margin: 0 auto; position: relative; overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.06);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+}
+#oglow { position: absolute; inset: 0; transition: background .6s; }
+#oitem {
+  position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%);
+  font-size: 2rem; transition: all .4s; filter: drop-shadow(0 0 6px rgba(255,150,0,0));
+}
+#obar-w { height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; margin-top: 7px; overflow: hidden; }
+#obar {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #c44b00, #ffa040, #FFD700);
+  border-radius: 3px; transition: width .1s;
+  box-shadow: 0 0 6px rgba(255,120,0,0.5);
+}
+#otemp { text-align: center; margin-top: 4px; font-size: .55rem; color: rgba(255,255,255,0.25); letter-spacing: 2px; text-transform: uppercase; }
+
+/* ═══════════════════════════════════════════
+   INGREDIENT SECTION
+═══════════════════════════════════════════ */
+#ingsec {
+  position: relative; z-index: 5;
+  width: 100%; padding: 0 12px 4px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+#inggrid { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+
+.iitem {
+  background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: var(--r-sm); padding: 8px 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  min-width: 84px; transition: all .25s; position: relative; overflow: hidden;
+}
+.iitem::before {
+  content: ''; position: absolute; inset: 0; border-radius: var(--r-sm);
+  background: linear-gradient(135deg, rgba(201,168,76,0.06), transparent);
+  opacity: 0; transition: opacity .3s;
+}
+.iitem:hover::before { opacity: 1; }
+.iitem.correct {
+  border-color: rgba(92,200,184,0.5);
+  box-shadow: 0 0 16px rgba(92,200,184,0.15), inset 0 0 12px rgba(92,200,184,0.05);
+}
+.iitem.wrong {
+  border-color: rgba(232,100,122,0.6);
+  box-shadow: 0 0 16px rgba(232,100,122,0.2);
+  animation: shake .3s ease;
+}
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+.ie { font-size: 1.5rem; }
+.iname { font-size: .58rem; font-weight: 500; color: var(--cream-dim); letter-spacing: .5px; }
+.ictrls { display: flex; align-items: center; gap: 4px; position: relative; z-index: 1; }
+.ibtn {
+  width: 22px; height: 22px; border-radius: 7px; border: 1px solid rgba(201,168,76,0.3);
+  background: rgba(201,168,76,0.1); color: var(--gold-light);
+  font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-weight: 600; line-height: 1; transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.ibtn:hover { background: rgba(201,168,76,0.25); border-color: var(--gold); transform: scale(1.1); }
+.ibtn.minus { border-color: rgba(232,100,122,0.3); background: rgba(232,100,122,0.08); color: #e8a0ac; }
+.ibtn.minus:hover { background: rgba(232,100,122,0.2); border-color: var(--rose); }
+.ival {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: .95rem; font-weight: 600; color: var(--cream);
+  min-width: 32px; text-align: center; position: relative; z-index: 1;
+}
+.iunit { font-size: .54rem; color: var(--gold-dim); font-weight: 500; letter-spacing: 1px; position: relative; z-index: 1; }
+.ifb { font-size: .58rem; min-height: 12px; font-weight: 600; position: relative; z-index: 1; }
+
+/* ═══════════════════════════════════════════
+   DECOR CANVAS
+═══════════════════════════════════════════ */
+#decar { display: none; flex-direction: column; align-items: center; gap: 8px; z-index: 5; position: relative; }
+#dcanvas {
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(201,168,76,0.25);
+  cursor: crosshair;
+  box-shadow: 0 0 30px rgba(201,168,76,0.1), var(--shadow-deep);
+}
+#dtools { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.dbtn {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 4px 10px; cursor: pointer;
+  font-size: .7rem; font-family: 'DM Sans', sans-serif;
+  font-weight: 500; transition: all .15s; color: var(--cream-dim);
+}
+.dbtn:hover { background: rgba(201,168,76,0.1); border-color: rgba(201,168,76,0.35); color: var(--cream); }
+.dbtn.active { background: rgba(201,168,76,0.18); color: var(--gold-light); border-color: rgba(201,168,76,0.5); }
+
+/* ═══════════════════════════════════════════
+   ACTION ROW
+═══════════════════════════════════════════ */
+#arow {
+  display: flex; gap: 8px; justify-content: center;
+  padding: 0 12px 10px; position: relative; z-index: 5;
+}
+.abtn {
+  display: flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08));
+  border: 1px solid rgba(201,168,76,0.4); border-radius: var(--r-sm);
+  padding: 9px 20px; color: var(--gold-light);
+  font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .8rem;
+  letter-spacing: .5px; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.1);
+  transition: all .2s; backdrop-filter: blur(6px);
+}
+.abtn:hover {
+  background: linear-gradient(135deg, rgba(201,168,76,0.32), rgba(201,168,76,0.14));
+  border-color: var(--gold); box-shadow: 0 6px 28px rgba(201,168,76,0.25);
+  transform: translateY(-2px);
+}
+.abtn:active { transform: scale(.97); }
+.abtn:disabled { opacity: .3; cursor: not-allowed; transform: none; box-shadow: none; }
+.abtn.green {
+  background: linear-gradient(135deg, rgba(92,200,184,0.18), rgba(92,200,184,0.06));
+  border-color: rgba(92,200,184,0.4); color: var(--mint);
+  box-shadow: 0 4px 20px rgba(92,200,184,0.1);
+}
+.abtn.green:hover {
+  background: linear-gradient(135deg, rgba(92,200,184,0.3), rgba(92,200,184,0.12));
+  border-color: var(--mint); box-shadow: 0 6px 28px rgba(92,200,184,0.25);
+}
+.abtn.rose {
+  background: linear-gradient(135deg, rgba(232,100,122,0.18), rgba(232,100,122,0.06));
+  border-color: rgba(232,100,122,0.4); color: #f0a0ac;
+  box-shadow: 0 4px 20px rgba(232,100,122,0.1);
+}
+.abtn.rose:hover {
+  background: linear-gradient(135deg, rgba(232,100,122,0.3), rgba(232,100,122,0.12));
+  border-color: var(--rose); box-shadow: 0 6px 28px rgba(232,100,122,0.25);
+}
+
+/* ═══════════════════════════════════════════
+   FEEDBACK OVERLAY
+═══════════════════════════════════════════ */
+#fbanner {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%) scale(.82);
+  background: linear-gradient(160deg, rgba(28,20,36,0.98), rgba(18,12,24,0.99));
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 20px; padding: 22px 26px;
+  z-index: 50; box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,0.1);
+  text-align: center; opacity: 0; transition: all .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none; max-width: 300px; width: 90%;
+  backdrop-filter: blur(20px);
+}
+#fbanner.show { opacity: 1; transform: translate(-50%,-50%) scale(1); pointer-events: all; }
+.fbe { font-size: 2.8rem; display: block; }
+.fbt { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 300; margin-top: 6px; letter-spacing: 1px; }
+.fbb { font-size: .72rem; color: var(--cream-dim); margin-top: 8px; line-height: 1.6; }
+.fbb b { color: var(--cream); }
+
+/* ═══════════════════════════════════════════
+   RESULT OVERLAY
+═══════════════════════════════════════════ */
+#roverlay {
+  display: none; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(30,20,40,0.97) 40%, rgba(10,6,14,0.99));
+  border-radius: var(--r); z-index: 55;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; text-align: center; padding: 22px;
+}
+#roverlay::before {
+  content: ''; position: absolute; inset: 0; border-radius: var(--r);
+  background: radial-gradient(ellipse at center top, rgba(201,168,76,0.08), transparent 60%);
+  pointer-events: none;
+}
+.rbig { font-size: 4.8rem; animation: ba .7s ease infinite alternate; position: relative; z-index: 1; }
+@keyframes ba { from{transform:scale(1) rotate(-2deg)} to{transform:scale(1.08) rotate(2deg)} }
+#rtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; font-weight: 300; color: var(--gold-light);
+  letter-spacing: 3px; position: relative; z-index: 1;
+}
+#rtitle::after {
+  content: ''; display: block; width: 60px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 8px auto 0;
+}
+#rstars { font-size: 1.5rem; letter-spacing: 5px; position: relative; z-index: 1; }
+#rpts { font-size: .85rem; color: var(--gold-dim); font-weight: 400; letter-spacing: 1px; position: relative; z-index: 1; }
+#runlock {
+  font-size: .76rem; color: var(--mint); font-weight: 500;
+  background: rgba(92,200,184,0.08); border-radius: var(--r-sm);
+  padding: 7px 16px; border: 1px solid rgba(92,200,184,0.25);
+  letter-spacing: .5px; position: relative; z-index: 1;
+}
+
+/* ═══════════════════════════════════════════
+   RECIPE BOOK MODAL
+═══════════════════════════════════════════ */
+#boverlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(6,4,10,0.75); backdrop-filter: blur(12px);
+  align-items: center; justify-content: center;
+}
+#boverlay.open { display: flex; }
+#bmodal {
+  background: linear-gradient(160deg, #1a1224, #120c1a);
+  border-radius: 22px; width: min(660px, 96vw); max-height: 87vh;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 0 1px rgba(201,168,76,0.2);
+  border: 1px solid rgba(201,168,76,0.18);
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: bookOpen .32s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes bookOpen { from{transform:scale(.88) translateY(20px);opacity:0} to{transform:scale(1) translateY(0);opacity:1} }
+
+#bhdr {
+  padding: 16px 22px;
+  background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.04));
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+  display: flex; align-items: center; justify-content: space-between;
+}
+#bhdr h2 {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--gold-light); font-size: 1.2rem; font-weight: 300; letter-spacing: 3px;
+}
+#bclose {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; width: 30px; height: 30px; color: var(--cream-dim);
+  font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: .15s;
+}
+#bclose:hover { background: rgba(232,100,122,0.15); border-color: rgba(232,100,122,0.3); color: var(--rose); }
+
+#btabs {
+  display: flex; gap: 0; overflow-x: auto;
+  background: rgba(0,0,0,0.3); padding: 10px 14px 0;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+}
+.btab {
+  background: transparent; border: 1px solid transparent;
+  border-bottom: none; border-radius: 10px 10px 0 0;
+  padding: 7px 15px; font-family: 'DM Sans', sans-serif; font-weight: 500;
+  font-size: .74rem; cursor: pointer; color: rgba(255,255,255,0.3);
+  transition: .2s; white-space: nowrap; letter-spacing: .5px;
+}
+.btab:hover:not(.ltab) { color: var(--cream-dim); }
+.btab.active { background: rgba(201,168,76,0.08); border-color: rgba(201,168,76,0.2); color: var(--gold-light); }
+.btab.ltab { opacity: .3; cursor: not-allowed; }
+
+#bcontent { flex: 1; overflow-y: auto; padding: 20px 22px; }
+.rpage { display: none; }
+.rpage.active { display: block; }
+
+.rpttl {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+  padding-bottom: 14px; border-bottom: 1px solid rgba(201,168,76,0.12);
+}
+.rpttl .be { font-size: 2.4rem; }
+.rpttl-name { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; color: var(--cream); letter-spacing: 2px; }
+.rpttl-diff { font-size: .62rem; color: var(--gold-dim); letter-spacing: 3px; margin-top: 2px; }
+.rpdesc { font-size: .76rem; color: var(--cream-dim); line-height: 1.6; margin-bottom: 14px; }
+
+.sec-label { font-size: .58rem; letter-spacing: 4px; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 8px; font-weight: 500; }
+
+.itable { width: 100%; border-collapse: separate; border-spacing: 0 3px; }
+.itable th { font-size: .62rem; letter-spacing: 3px; color: rgba(255,255,255,0.2); text-transform: uppercase; padding: 3px 8px; text-align: left; font-weight: 500; }
+.itable td { background: rgba(255,255,255,0.02); padding: 8px 10px; font-size: .78rem; color: var(--cream-dim); border: 1px solid transparent; }
+.itable tr td:first-child { border-radius: 8px 0 0 8px; border-color: rgba(255,255,255,0.04); border-right: none; }
+.itable tr td:last-child { border-radius: 0 8px 8px 0; text-align: right; color: var(--gold-light); font-weight: 500; border-color: rgba(255,255,255,0.04); border-left: none; }
+.itable tr td:not(:first-child):not(:last-child) { border-top-color: rgba(255,255,255,0.04); border-bottom-color: rgba(255,255,255,0.04); }
+
+.rslist { margin-top: 14px; }
+.srow { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.snum {
+  width: 22px; height: 22px; min-width: 22px; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.05));
+  border: 1px solid rgba(201,168,76,0.3);
+  color: var(--gold-light); font-size: .64rem; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+.stxt { font-size: .76rem; color: var(--cream-dim); line-height: 1.5; padding-top: 2px; }
+.stxt b { color: var(--cream); font-weight: 500; }
+
+.lmsg { text-align: center; padding: 36px 20px; }
+.lmsg .le { font-size: 3rem; display: block; margin-bottom: 10px; opacity: .4; }
+.lmsg p { font-size: .8rem; color: rgba(255,255,255,0.25); line-height: 1.6; }
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+#toast {
+  position: fixed; top: 74px; left: 50%;
+  transform: translateX(-50%) translateY(-12px);
+  background: linear-gradient(135deg, rgba(28,20,36,0.96), rgba(20,14,26,0.98));
+  border: 1px solid rgba(201,168,76,0.35);
+  border-radius: 30px; padding: 8px 20px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 20px rgba(201,168,76,0.1);
+  font-weight: 400; font-size: .78rem; color: var(--cream-dim);
+  opacity: 0; transition: all .25s; z-index: 100;
+  pointer-events: none; white-space: nowrap; backdrop-filter: blur(12px);
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ═══════════════════════════════════════════
+   PARTICLES & CONFETTI
+═══════════════════════════════════════════ */
+.cp {
+  position: fixed; pointer-events: none; z-index: 999;
+  border-radius: 2px; animation: cf 2s ease-in forwards;
+}
+@keyframes cf {
+  0% { transform: translateY(-10px) rotate(0); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.part {
+  position: absolute; pointer-events: none; font-size: 1rem;
+  animation: pu .9s ease-out forwards; z-index: 30;
+}
+@keyframes pu {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-60px) scale(.3); opacity: 0; }
+}
+
+/* ── SPARKLE on ingredients ── */
+.sparkle {
+  position: absolute; pointer-events: none; font-size: .8rem;
+  animation: sp .6s ease-out forwards; z-index: 40;
+}
+@keyframes sp {
+  0% { transform: translate(-50%,-50%) scale(0); opacity: 1; }
+  60% { transform: translate(-50%,-70%) scale(1.2); opacity: 1; }
+  100% { transform: translate(-50%,-90%) scale(0); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(201,168,76,0.4); }
+
+/* ═══════════════════════════════════════════
+   MOBILE DRAWER OVERLAY
+═══════════════════════════════════════════ */
+#drawer-overlay {
+  display: none; position: fixed; inset: 0; z-index: 80;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+}
+#drawer-overlay.open { display: block; }
+
+/* ═══════════════════════════════════════════
+   MOBILE BOTTOM NAV
+═══════════════════════════════════════════ */
+#mobile-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
+  background: linear-gradient(180deg, rgba(18,12,22,0.97), rgba(12,8,16,0.99));
+  border-top: 1px solid rgba(201,168,76,0.15);
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+  display: none;
+  justify-content: space-around; align-items: center;
+}
+.mnav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: none; cursor: pointer;
+  color: var(--cream-dim); font-family: 'DM Sans', sans-serif;
+  font-size: .58rem; font-weight: 500; letter-spacing: 1px;
+  padding: 6px 14px; border-radius: 12px; transition: all .2s;
+  text-transform: uppercase;
+}
+.mnav-btn .mico { font-size: 1.3rem; }
+.mnav-btn.active { color: var(--gold-light); }
+.mnav-btn.active .mico { filter: drop-shadow(0 0 6px rgba(201,168,76,0.6)); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — TABLET (max 900px)
+═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  #app { gap: 10px; padding: 10px 10px 10px; height: calc(100vh - 60px); }
+  #rpanel { width: 160px; min-width: 160px; padding: 10px 8px; }
+  .logo-main { font-size: 1.6rem; letter-spacing: 2px; }
+  .logo-sub { display: none; }
+  .hstat { padding: 4px 9px; font-size: .7rem; }
+  #book-btn { padding: 6px 11px; font-size: .72rem; }
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — MOBILE (max 640px)
+═══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  /* Body scroll on mobile */
+  body { overflow-y: auto; }
+
+  /* Header compact */
+  header {
+    padding: 10px 14px 8px;
+    flex-wrap: wrap; gap: 6px;
+  }
+  .logo-main { font-size: 1.4rem; letter-spacing: 2px; }
+  .logo-sub { display: none; }
+  .header-stats { gap: 5px; }
+  .hstat { padding: 4px 8px; font-size: .68rem; gap: 4px; }
+  .hstat .ico { font-size: .8rem; }
+  #book-btn {
+    padding: 5px 10px; font-size: .7rem; gap: 5px;
+  }
+
+  /* Hide desktop sidebar */
+  #rpanel {
+    position: fixed; left: -100%; top: 0; bottom: 0;
+    z-index: 85; width: 75vw; max-width: 280px; min-width: unset;
+    border-radius: 0 var(--r) var(--r) 0;
+    transition: left .3s cubic-bezier(.4,0,.2,1);
+    padding-top: 60px; overflow-y: auto;
+    box-shadow: 4px 0 40px rgba(0,0,0,0.6);
+  }
+  #rpanel.open {
+    left: 0;
+  }
+
+  /* Layout: single column */
+  #app {
+    flex-direction: column; gap: 0;
+    padding: 8px 10px calc(70px + env(safe-area-inset-bottom));
+    height: auto; min-height: calc(100vh - 58px);
+    max-width: 100%;
+  }
+
+  /* Show bottom nav */
+  #mobile-nav { display: flex; }
+
+  /* Kitchen fills width */
+  #game { width: 100%; }
+  #kitchen {
+    border-radius: var(--r-sm);
+    min-height: calc(100svh - 58px - 70px - 16px);
+  }
+
+  /* Step display */
+  #sdisp { padding: 12px 14px 4px; }
+  #stitle { font-size: 1.1rem; }
+  #sdesc { font-size: .72rem; }
+  #shint { font-size: .65rem; }
+
+  /* Workbench — smaller */
+  #wb { gap: 14px; padding: 2px 12px 6px; }
+  #bowl { width: 100px; height: 70px; }
+  #bowl::after { display: none; }
+  #bfill { border-radius: 0 0 48px 48px / 0 0 36px 36px; }
+  #oven { width: 88px; padding: 6px; }
+  #owin { width: 74px; height: 54px; }
+  #oitem { font-size: 1.6rem; bottom: 5px; }
+
+  /* Ingredients — 2 per row on small screens */
+  #ingsec { padding: 0 8px 3px; }
+  #inggrid { gap: 5px; }
+  .iitem { min-width: 72px; padding: 6px 7px; gap: 2px; }
+  .ie { font-size: 1.3rem; }
+  .iname { font-size: .55rem; }
+  .ibtn { width: 26px; height: 26px; font-size: 1.1rem; border-radius: 8px; }
+  .ival { font-size: .88rem; min-width: 28px; }
+  .iunit { font-size: .52rem; }
+  .ifb { font-size: .55rem; }
+
+  /* Action buttons */
+  #arow { padding: 0 8px 8px; gap: 6px; flex-wrap: wrap; }
+  .abtn { padding: 8px 14px; font-size: .76rem; border-radius: 10px; }
+
+  /* Decor canvas — fit mobile */
+  #dcanvas { width: 100%; max-width: 320px; height: 110px; }
+  #dtools { gap: 4px; }
+  .dbtn { padding: 4px 8px; font-size: .66rem; border-radius: 7px; }
+
+  /* Step dots */
+  .dot { width: 18px; height: 2px; }
+  .dot.active { width: 26px; }
+
+  /* Feedback banner */
+  #fbanner { max-width: 90vw; padding: 18px 18px; }
+  .fbe { font-size: 2.2rem; }
+  .fbt { font-size: 1rem; }
+  .fbb { font-size: .7rem; }
+
+  /* Result overlay */
+  #roverlay { padding: 18px 14px; gap: 7px; }
+  .rbig { font-size: 3.8rem; }
+  #rtitle { font-size: 1.5rem; letter-spacing: 2px; }
+  #rstars { font-size: 1.2rem; }
+  #rpts { font-size: .78rem; }
+  #runlock { font-size: .72rem; padding: 5px 12px; }
+
+  /* Book modal — full screen on mobile */
+  #bmodal {
+    width: 100vw; max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    animation: slideUp .32s cubic-bezier(.34,1.2,.64,1);
+  }
+  @keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+  #boverlay { align-items: flex-end; }
+  #bhdr { padding: 14px 16px; }
+  #bhdr h2 { font-size: 1rem; letter-spacing: 2px; }
+  #btabs { padding: 7px 10px 0; }
+  .btab { padding: 5px 10px; font-size: .7rem; }
+  #bcontent { padding: 14px 16px; }
+  .rpttl-name { font-size: 1.1rem; }
+  .rpdesc { font-size: .72rem; }
+
+  /* Toast */
+  #toast { top: auto; bottom: calc(75px + env(safe-area-inset-bottom)); font-size: .74rem; }
+
+  /* Arcs hide on mobile for perf */
+  .kitchen-arc { display: none; }
+
+  /* Sidebar close button */
+  #sidebar-close {
+    position: absolute; top: 14px; right: 14px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; width: 28px; height: 28px;
+    color: var(--cream-dim); font-size: .9rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   VERY SMALL SCREENS (max 380px)
+═══════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .logo-main { font-size: 1.2rem; }
+  .hstat:not(:first-child) { display: none; }
+  .iitem { min-width: 64px; padding: 5px 5px; }
+  .ibtn { width: 24px; height: 24px; }
+  #stitle { font-size: 1rem; }
+  .abtn { padding: 7px 11px; font-size: .72rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE DRAWER OVERLAY -->
+<div id="drawer-overlay" onclick="closeSidebar()"></div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav id="mobile-nav">
+  <button class="mnav-btn" id="mnav-menu" onclick="toggleSidebar()">
+    <span class="mico">🍽️</span><span>Меню</span>
+  </button>
+  <button class="mnav-btn" onclick="openBook()">
+    <span class="mico">📖</span><span>Рецепты</span>
+  </button>
+  <button class="mnav-btn">
+    <span class="mico">✦</span><span id="mnav-pts">0 очков</span>
+  </button>
+</nav>
+
+<!-- BG -->
+<div class="bg-canvas">
+  <div class="bg-orb o1"></div>
+  <div class="bg-orb o2"></div>
+  <div class="bg-orb o3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo-wrap">
+    <div class="logo-main">La Pâtisserie</div>
+    <div class="logo-sub">кондитерская</div>
+  </div>
+  <div class="header-stats">
+    <div class="hstat"><span class="ico">✦</span> <strong id="sv">0</strong> очков</div>
+    <div class="hstat"><span class="ico">🎂</span> <strong id="bv">0</strong> блюд</div>
+    <div class="hstat"><span class="ico">◈</span> ур. <strong id="lv">1</strong></div>
+    <button id="book-btn" onclick="openBook()">◈ Книга рецептов</button>
+  </div>
+</header>
+
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside id="rpanel">
+    <button id="sidebar-close" onclick="closeSidebar()">✕</button>
+    <div class="panel-label">Меню</div>
+    <div id="rlist"></div>
+  </aside>
+
+  <!-- GAME -->
+  <section id="game">
+    <div id="kitchen">
+
+      <!-- Decorative arcs -->
+      <div class="kitchen-arc arc1"></div>
+      <div class="kitchen-arc arc2"></div>
+      <div class="worktop"></div>
+
+      <!-- STEP HEADER -->
+      <div id="sdisp">
+        <div class="step-number" id="stepnum"></div>
+        <div id="stitle">Выберите рецепт</div>
+        <div id="sdesc">Нажмите на блюдо в меню слева</div>
+        <div id="shint"></div>
+      </div>
+      <div id="sdots"></div>
+
+      <!-- WORKBENCH -->
+      <div id="wb">
+        <div id="bwrap">
+          <div id="bowl"><div id="bfill"></div></div>
+          <div id="blabel">Миска</div>
+        </div>
+        <div id="oven">
+          <div id="owin"><div id="oglow"></div><div id="oitem"></div></div>
+          <div id="obar-w"><div id="obar"></div></div>
+          <div id="otemp">Духовка</div>
+        </div>
+      </div>
+
+      <!-- INGREDIENTS -->
+      <div id="ingsec"><div id="inggrid"></div></div>
+
+      <!-- DECOR -->
+      <div id="decar">
+        <canvas id="dcanvas" width="268" height="128"></canvas>
+        <div id="dtools"></div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div id="arow"></div>
+
+      <!-- FEEDBACK -->
+      <div id="fbanner">
+        <span class="fbe" id="fbe">❓</span>
+        <div class="fbt" id="fbt">Заголовок</div>
+        <div class="fbb" id="fbb">Текст</div>
+        <button class="abtn" style="margin-top:12px" onclick="closeFB()">Понятно</button>
+      </div>
+
+      <!-- RESULT -->
+      <div id="roverlay">
+        <div class="rbig" id="re">🎂</div>
+        <div id="rtitle">Готово!</div>
+        <div id="rstars">⭐⭐⭐</div>
+        <div id="rpts">+30 очков</div>
+        <div id="runlock" style="display:none"></div>
+        <button class="abtn green" style="margin-top:14px" onclick="closeResult()">✦ Продолжить</button>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- RECIPE BOOK -->
+<div id="boverlay" onclick="if(event.target===this)closeBook()">
+  <div id="bmodal">
+    <div id="bhdr">
+      <h2>◈ Книга рецептов</h2>
+      <button id="bclose" onclick="closeBook()">✕</button>
+    </div>
+    <div id="btabs"></div>
+    <div id="bcontent"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────
+// RECIPES
+// ──────────────────────────────────────────────
+const RECIPES=[
+  {id:'cupcake',name:'Капкейк',emoji:'🧁',unlockAfter:null,diff:1,
+   color:'rgba(232,100,122,0.7)',fillColor:'rgba(232,100,122,0.3)',
+   desc:'Нежный кексик с кремом — идеально для начинающих кондитеров.',
+   steps:[
+     {type:'ingredients',title:'Замесить тесто',desc:'Выберите правильное количество каждого ингредиента',hint:'◈ Подсказка: загляните в книгу рецептов',
+      ingredients:[
+        {emoji:'🌾',name:'Мука',    unit:'г',  correct:200,min:50, max:350,step:25},
+        {emoji:'🥚',name:'Яйца',   unit:'шт', correct:2,  min:1,  max:5,  step:1},
+        {emoji:'🥛',name:'Молоко', unit:'мл', correct:100,min:25, max:200,step:25},
+        {emoji:'🧈',name:'Масло',  unit:'г',  correct:80, min:20, max:160,step:20},
+        {emoji:'🍬',name:'Сахар',  unit:'г',  correct:150,min:50, max:300,step:25},
+      ]},
+     {type:'mix',   title:'Перемешать',       desc:'Хорошо перемешайте все ингредиенты',hint:'Нажимайте кнопку несколько раз'},
+     {type:'bake',  title:'Выпекать 20 минут',desc:'180°C — следите за временем',hint:'',time:4000},
+     {type:'decorate',title:'Украсить',        desc:'Нанесите крем и добавьте декор',hint:'Рисуйте прямо по изделию'},
+   ]},
+  {id:'cake',name:'Торт',emoji:'🎂',unlockAfter:'cupcake',diff:2,
+   color:'rgba(244,162,97,0.7)',fillColor:'rgba(244,162,97,0.3)',
+   desc:'Классический шоколадный торт — чуть сложнее, но невероятно вкусный.',
+   steps:[
+     {type:'ingredients',title:'Тесто для торта',desc:'Торт требует точных пропорций — будьте внимательны',hint:'◈ Откройте книгу рецептов для подсказки',
+      ingredients:[
+        {emoji:'🌾',name:'Мука',  unit:'г', correct:300,min:100,max:500,step:50},
+        {emoji:'🥚',name:'Яйца', unit:'шт',correct:4,  min:1,  max:8,  step:1},
+        {emoji:'🍫',name:'Какао',unit:'г', correct:50, min:10, max:120,step:10},
+        {emoji:'🧈',name:'Масло',unit:'г', correct:100,min:20, max:200,step:20},
+        {emoji:'🍬',name:'Сахар',unit:'г', correct:200,min:50, max:400,step:50},
+        {emoji:'🥛',name:'Молоко',unit:'мл',correct:150,min:50,max:300,step:25},
+      ]},
+     {type:'mix',  title:'Взбить миксером', desc:'Взбивайте тесто 5 минут до однородности',hint:''},
+     {type:'bake', title:'Выпекать 40 минут',desc:'170°C — важно не передержать',hint:'',time:5000},
+     {type:'decorate',title:'Украсить торт',desc:'Покройте кремом и добавьте декор',hint:''},
+   ]},
+  {id:'donut',name:'Пончики',emoji:'🍩',unlockAfter:'cake',diff:2,
+   color:'rgba(255,217,61,0.6)',fillColor:'rgba(255,217,61,0.2)',
+   desc:'Воздушные пончики в глазури — любимое лакомство всех детей.',
+   steps:[
+     {type:'ingredients',title:'Дрожжевое тесто',desc:'Дрожжевое тесто требует особой точности',hint:'',
+      ingredients:[
+        {emoji:'🌾',name:'Мука',  unit:'г', correct:400,min:100,max:600,step:50},
+        {emoji:'🥚',name:'Яйца', unit:'шт',correct:2,  min:1,  max:5,  step:1},
+        {emoji:'🧈',name:'Масло',unit:'г', correct:60, min:10, max:120,step:10},
+        {emoji:'🍬',name:'Сахар',unit:'г', correct:80, min:10, max:200,step:10},
+        {emoji:'🧂',name:'Дрожжи',unit:'г',correct:7,  min:1,  max:20, step:1},
+        {emoji:'🥛',name:'Молоко',unit:'мл',correct:200,min:50,max:400,step:25},
+      ]},
+     {type:'mix',  title:'Замесить тесто',  desc:'Вымешивайте тесто руками — 10 минут',hint:''},
+     {type:'bake', title:'Жарить пончики',  desc:'Обжаривайте во фритюре до золотого цвета',hint:'',time:3500},
+     {type:'decorate',title:'Добавить глазурь',desc:'Покройте глазурью и посыпкой',hint:''},
+   ]},
+  {id:'macaron',name:'Макарон',emoji:'🍪',unlockAfter:'donut',diff:3,
+   color:'rgba(200,162,200,0.7)',fillColor:'rgba(200,162,200,0.25)',
+   desc:'Французское пирожное — капризное, требует точности до грамма.',
+   steps:[
+     {type:'ingredients',title:'Миндальное тесто',desc:'Каждый грамм важен — будьте максимально точны',hint:'◈ Это сложный рецепт — обязательно откройте книгу',
+      ingredients:[
+        {emoji:'🌰',name:'Миндаль',  unit:'г',correct:125,min:50, max:250,step:25},
+        {emoji:'🍬',name:'Сах.пудра',unit:'г',correct:225,min:100,max:350,step:25},
+        {emoji:'🥚',name:'Белки',    unit:'г',correct:100,min:30, max:180,step:10},
+        {emoji:'🍬',name:'Сахар',    unit:'г',correct:50, min:10, max:120,step:10},
+        {emoji:'🎨',name:'Краситель',unit:'г',correct:2,  min:1,  max:8,  step:1},
+      ]},
+     {type:'mix',  title:'Макаронаж',       desc:'Аккуратно складывайте тесто лопаткой',hint:''},
+     {type:'bake', title:'Выпекать 15 минут',desc:'140°C — дверь духовки не открывать',hint:'',time:4500},
+     {type:'decorate',title:'Сборка',        desc:'Склейте половинки ганашем',hint:''},
+   ]},
+  {id:'icecream',name:'Мороженое',emoji:'🍦',unlockAfter:'macaron',diff:2,
+   color:'rgba(92,200,184,0.6)',fillColor:'rgba(92,200,184,0.2)',
+   desc:'Домашнее мороженое из натуральных сливок — просто объедение.',
+   steps:[
+     {type:'ingredients',title:'Крем-основа',desc:'Приготовьте базу для мороженого',hint:'',
+      ingredients:[
+        {emoji:'🥛',name:'Сливки',unit:'мл',correct:500,min:100,max:700,step:50},
+        {emoji:'🍬',name:'Сахар', unit:'г', correct:150,min:50, max:300,step:25},
+        {emoji:'🥚',name:'Желтки',unit:'шт',correct:4,  min:1,  max:8,  step:1},
+        {emoji:'🌸',name:'Ваниль',unit:'г', correct:5,  min:1,  max:15, step:1},
+      ]},
+     {type:'mix',  title:'Завариваем крем', desc:'Нагрейте до 82°C, помешивая',hint:''},
+     {type:'bake', title:'Заморозить',      desc:'Помешивайте каждый час',hint:'',time:3000},
+     {type:'decorate',title:'Сервировка',   desc:'Выложите шариками, добавьте топпинги',hint:''},
+   ]},
+];
+
+// ──────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────
+let score=0,level=1,baked=0;
+let unlocked=new Set(['cupcake']),newU=new Set();
+let cur=null,cStep=0,ingV={};
+let mixCnt=0,mixDone=false,bakeT=null;
+let isDrawing=false,dMode='stamp',dColor='🍓';
+
+// ──────────────────────────────────────────────
+// RENDER RECIPES
+// ──────────────────────────────────────────────
+function renderRecipes(){
+  const el=document.getElementById('rlist');el.innerHTML='';
+  RECIPES.forEach(r=>{
+    const ok=unlocked.has(r.id),isNew=newU.has(r.id);
+    const d=document.createElement('div');
+    d.className='rcard'+(ok?'':' locked')+(cur?.id===r.id?' selected':'');
+    d.innerHTML=`<span class="rc-emoji">${r.emoji}</span><div class="rc-name">${r.name}</div><div class="rc-diff">${'★'.repeat(r.diff)}${'☆'.repeat(3-r.diff)}</div>${!ok?'<div class="lbadge">🔒</div>':''}${isNew&&ok?'<div class="nbadge">new</div>':''}`;
+    if(ok) d.onclick=()=>selectRecipe(r);
+    el.appendChild(d);
+  });
+}
+
+function selectRecipe(r){
+  cur=r;cStep=0;ingV={};
+  newU.delete(r.id);
+  resetBowl();resetOven();closeFB();
+  document.getElementById('roverlay').style.display='none';
+  renderRecipes();renderStep();
+  toast(`${r.emoji}  ${r.name}`);
+}
+
+// ──────────────────────────────────────────────
+// RENDER STEP
+// ──────────────────────────────────────────────
+function renderStep(){
+  if(!cur) return;
+  const s=cur.steps[cStep];
+  document.getElementById('stepnum').textContent=`Шаг ${cStep+1} из ${cur.steps.length}`;
+  document.getElementById('stitle').textContent=s.title;
+  document.getElementById('sdesc').textContent=s.desc;
+  document.getElementById('shint').textContent=s.hint||'';
+
+  const dots=document.getElementById('sdots');dots.innerHTML='';
+  cur.steps.forEach((_,i)=>{
+    const d=document.createElement('div');
+    d.className='dot'+(i<cStep?' done':i===cStep?' active':'');
+    dots.appendChild(d);
+  });
+
+  const ig=document.getElementById('inggrid');
+  const ar=document.getElementById('arow');
+  const da=document.getElementById('decar');
+  const wb=document.getElementById('wb');
+  const is=document.getElementById('ingsec');
+  ig.innerHTML='';ar.innerHTML='';
+  da.style.display='none';wb.style.display='flex';is.style.display='none';
+
+  if(s.type==='ingredients'){
+    is.style.display='flex';
+    s.ingredients.forEach(ing=>{
+      if(!(ing.name in ingV)) ingV[ing.name]=ing.min;
+      ig.appendChild(mkIng(ing));
+    });
+    const btn=mkBtn('rose','✦ Проверить рецепт',checkIng);
+    ar.appendChild(btn);
+  }
+  if(s.type==='mix'){
+    mixCnt=0;mixDone=false;updBowlMix(0);
+    const btn=mkBtn('','🔄 Мешать  (0 / 6)',null);
+    btn.id='mbtn';btn.onclick=()=>doMix(btn);
+    ar.appendChild(btn);
+  }
+  if(s.type==='bake'){
+    document.getElementById('oitem').textContent=cur.emoji;
+    ar.appendChild(mkBtn('rose','🔥 Поставить в духовку',()=>startBake(s.time)));
+  }
+  if(s.type==='decorate'){
+    wb.style.display='none';da.style.display='flex';
+    setupDecor();
+    ar.appendChild(mkBtn('green','✦ Подать блюдо',finish));
+  }
+}
+
+function mkBtn(cls,txt,fn){
+  const b=document.createElement('button');
+  b.className='abtn'+(cls?' '+cls:'');b.textContent=txt;
+  if(fn) b.onclick=fn;
+  return b;
+}
+
+// ──────────────────────────────────────────────
+// INGREDIENTS
+// ──────────────────────────────────────────────
+function mkIng(ing){
+  const d=document.createElement('div');d.className='iitem';d.id='ii-'+ing.name;
+  d.innerHTML=`<div class="ie">${ing.emoji}</div><div class="iname">${ing.name}</div><div class="ictrls"><button class="ibtn minus" onclick="chIng('${ing.name}',-${ing.step})">−</button><div class="ival" id="v-${ing.name}">${ingV[ing.name]}</div><button class="ibtn" onclick="chIng('${ing.name}',${ing.step})">+</button></div><div class="iunit">${ing.unit}</div><div class="ifb" id="ifb-${ing.name}"></div>`;
+  return d;
+}
+function chIng(name,delta){
+  const s=cur.steps[cStep];
+  const ing=s.ingredients.find(i=>i.name===name);if(!ing) return;
+  let v=(ingV[name]??ing.min)+delta;
+  v=Math.max(ing.min,Math.min(ing.max,v));
+  ingV[name]=v;
+  const el=document.getElementById('v-'+name);if(el) el.textContent=v;
+  spawnSparkle('ii-'+name);
+}
+function checkIng(){
+  const s=cur.steps[cStep];let allOk=true;const errs=[];
+  s.ingredients.forEach(ing=>{
+    const v=ingV[ing.name]??ing.min;
+    const el=document.getElementById('ii-'+ing.name);
+    const fb=document.getElementById('ifb-'+ing.name);
+    const tol=ing.step;
+    if(Math.abs(v-ing.correct)<=tol){
+      el.classList.remove('wrong');el.classList.add('correct');
+      if(fb){fb.textContent='✓';fb.style.color='var(--mint)';}
+    } else {
+      el.classList.add('wrong');el.classList.remove('correct');allOk=false;
+      const diff=v-ing.correct;
+      errs.push(`${ing.emoji} <b>${ing.name}</b>: ${diff>0?'слишком много':'слишком мало'} (${v} вместо ${ing.correct} ${ing.unit})`);
+      if(fb){fb.textContent=diff>0?'↑ много':'↓ мало';fb.style.color='var(--rose)';}
+    }
+  });
+  if(allOk){
+    showFB('✦','Ингредиентов добавлено нужное количество','Точное соблюдение пропорций — признак настоящего мастера.',true);
+    setTimeout(()=>{closeFB();nextStep();},1800);
+  } else {
+    showFB('◈','Что-то пошло не так','Исправьте ошибки:<br>'+errs.join('<br>'),false);
+  }
+}
+
+// ──────────────────────────────────────────────
+// MIX
+// ──────────────────────────────────────────────
+function doMix(btn){
+  if(mixDone) return;
+  mixCnt++;
+  btn.textContent=`🔄 Мешать  (${mixCnt} / 6)`;
+  updBowlMix(mixCnt/6);spawnP('✦');
+  if(mixCnt>=6){
+    mixDone=true;btn.disabled=true;btn.textContent='✦ Перемешано';
+    toast('Тесто готово к выпечке');
+    setTimeout(nextStep,800);
+  }
+}
+function updBowlMix(p){
+  const f=document.getElementById('bfill');
+  f.style.height=(38+p*42)+'%';
+  f.style.background=cur?cur.color:'rgba(201,168,76,0.4)';
+  f.style.boxShadow=cur?`0 0 20px ${cur.color}`:''
+}
+
+// ──────────────────────────────────────────────
+// BAKE
+// ──────────────────────────────────────────────
+function startBake(dur){
+  const ob=document.getElementById('obar'),og=document.getElementById('oglow'),ar=document.getElementById('arow'),oi=document.getElementById('oitem');
+  ar.innerHTML='<div style="color:var(--gold-dim);font-weight:400;font-size:.76rem;letter-spacing:2px;padding:6px">— выпекается —</div>';
+  og.style.background='radial-gradient(circle at center,rgba(255,120,0,.6) 10%,rgba(255,60,0,.2) 50%,transparent 75%)';
+  let p=0;
+  bakeT=setInterval(()=>{
+    p+=100/(dur/100);ob.style.width=Math.min(p,100)+'%';
+    if(p>50) oi.style.filter='drop-shadow(0 0 8px rgba(255,150,0,0.7))';
+    if(p>=100){
+      clearInterval(bakeT);bakeT=null;
+      og.style.background='radial-gradient(circle at center,rgba(255,200,0,.3) 20%,transparent 70%)';
+      spawnP('🔥');toast('Готово — доставайте из духовки');
+      const btn=mkBtn('green','🧤 Достать из духовки',()=>{resetOven();nextStep();});
+      ar.innerHTML='';ar.appendChild(btn);
+    }
+  },100);
+}
+
+// ──────────────────────────────────────────────
+// NEXT STEP / FINISH
+// ──────────────────────────────────────────────
+function nextStep(){
+  cStep++;ingV={};
+  if(cStep>=cur.steps.length){finish();return;}
+  resetBowl();renderStep();spawnP('✦');
+}
+function finish(){
+  baked++;
+  const pts=cur.diff*20+15;score+=pts;level=1+Math.floor(score/80);
+  updScore();
+  let uMsg=null;
+  const idx=RECIPES.findIndex(r=>r.id===cur.id);
+  if(idx>=0&&idx<RECIPES.length-1){
+    const nxt=RECIPES[idx+1];
+    if(!unlocked.has(nxt.id)){
+      unlocked.add(nxt.id);newU.add(nxt.id);
+      uMsg=`${nxt.emoji}  Открыт новый рецепт: ${nxt.name}`;
+    }
+  }
+  confetti();renderRecipes();
+  document.getElementById('re').textContent=cur.emoji;
+  document.getElementById('rtitle').textContent=cur.name+' — готово';
+  document.getElementById('rstars').textContent='★'.repeat(cur.diff)+'☆'.repeat(3-cur.diff);
+  document.getElementById('rpts').textContent=`+${pts} очков  ·  итого ${score}`;
+  const uel=document.getElementById('runlock');
+  if(uMsg){uel.textContent=uMsg;uel.style.display='block';}else uel.style.display='none';
+  document.getElementById('roverlay').style.display='flex';
+}
+function closeResult(){
+  document.getElementById('roverlay').style.display='none';
+  cur=null;cStep=0;
+  document.getElementById('stepnum').textContent='';
+  document.getElementById('stitle').textContent='Выберите рецепт';
+  document.getElementById('sdesc').textContent=window.innerWidth<=640?'Нажмите «Меню» внизу экрана':'Нажмите на блюдо в меню слева';
+  document.getElementById('shint').textContent='';
+  document.getElementById('sdots').innerHTML='';
+  document.getElementById('ingsec').style.display='none';
+  document.getElementById('arow').innerHTML='';
+  document.getElementById('decar').style.display='none';
+  document.getElementById('wb').style.display='flex';
+  resetBowl();resetOven();renderRecipes();
+}
+
+// ──────────────────────────────────────────────
+// FEEDBACK
+// ──────────────────────────────────────────────
+function showFB(e,t,b,good){
+  document.getElementById('fbe').textContent=e;
+  document.getElementById('fbt').textContent=t;
+  document.getElementById('fbt').style.color=good?'var(--mint)':'var(--rose)';
+  document.getElementById('fbb').innerHTML=b;
+  document.getElementById('fbanner').classList.add('show');
+}
+function closeFB(){document.getElementById('fbanner').classList.remove('show');}
+
+// ──────────────────────────────────────────────
+// DECOR CANVAS
+// ──────────────────────────────────────────────
+function setupDecor(){
+  const c=document.getElementById('dcanvas'),ctx=c.getContext('2d');
+  const sz=getCanvasSize();
+  c.width=sz.w; c.height=sz.h;
+  c.style.width=sz.w+'px'; c.style.height=sz.h+'px';
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle='rgba(30,20,40,0.9)';
+  ctx.beginPath();ctx.roundRect(6,6,sz.w-12,sz.h-12,12);ctx.fill();
+  ctx.strokeStyle=`${cur.color}`;ctx.lineWidth=1;
+  ctx.beginPath();ctx.roundRect(6,6,sz.w-12,sz.h-12,12);ctx.stroke();
+  ctx.font=`${Math.round(sz.h*0.5)}px serif`;ctx.textAlign='center';
+  ctx.fillText(cur.emoji,sz.w/2,sz.h*0.72);
+
+  const tools=[
+    {l:'🍓 Ягоды',m:'stamp',v:'🍓'},{l:'🌸 Цветок',m:'stamp',v:'🌸'},
+    {l:'⭐ Звезда',m:'stamp',v:'⭐'},{l:'🎀 Бант',m:'stamp',v:'🎀'},
+    {l:'✦ Золото', m:'draw', v:'#c9a84c'},{l:'◈ Крем',   m:'draw', v:'#f5efe6'},
+    {l:'✿ Посыпка',m:'sprinkle',v:'r'}, {l:'◉ Шоко',   m:'draw', v:'#5c3a1a'},
+  ];
+  const dt=document.getElementById('dtools');dt.innerHTML='';
+  tools.forEach((t,i)=>{
+    const btn=document.createElement('button');
+    btn.className='dbtn'+(i===0?' active':'');btn.textContent=t.l;
+    btn.onclick=()=>{document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');dMode=t.m;dColor=t.v;};
+    dt.appendChild(btn);
+  });
+  function draw(e){
+    const r=c.getBoundingClientRect();
+    const x=(e.clientX||(e.touches&&e.touches[0].clientX)||0)-r.left;
+    const y=(e.clientY||(e.touches&&e.touches[0].clientY)||0)-r.top;
+    if(dMode==='draw'){ctx.beginPath();ctx.arc(x,y,4.5,0,Math.PI*2);ctx.fillStyle=dColor;ctx.fill();}
+    else if(dMode==='stamp'){ctx.font='1.3rem serif';ctx.textAlign='center';ctx.fillText(dColor,x,y+6);isDrawing=false;}
+    else{const cols=['#c9a84c','#e8647a','#5cc8b8','#c8a2c8','#f4a261'];
+      for(let i=0;i<10;i++){ctx.fillStyle=cols[Math.floor(Math.random()*cols.length)];ctx.fillRect(x+(Math.random()-.5)*44,y+(Math.random()-.5)*20,2.5,7);}
+    }
+  }
+  c.onmousedown=(e)=>{isDrawing=true;draw(e);};
+  c.onmousemove=(e)=>{if(isDrawing)draw(e);};
+  c.onmouseup=c.onmouseleave=()=>isDrawing=false;
+  c.ontouchstart=(e)=>{e.preventDefault();isDrawing=true;draw(e);};
+  c.ontouchmove=(e)=>{e.preventDefault();if(isDrawing)draw(e);};
+  c.ontouchend=()=>isDrawing=false;
+}
+
+// ──────────────────────────────────────────────
+// BOOK
+// ──────────────────────────────────────────────
+function openBook(){
+  const tabs=document.getElementById('btabs'),bc=document.getElementById('bcontent');
+  tabs.innerHTML='';bc.innerHTML='';
+  RECIPES.forEach((r,i)=>{
+    const ok=unlocked.has(r.id);
+    const tab=document.createElement('button');
+    tab.className='btab'+(i===0?' active':'')+(ok?'':' ltab');
+    tab.textContent=r.emoji+'  '+r.name;
+    if(ok) tab.onclick=()=>showBPage(r.id);
+    tabs.appendChild(tab);
+    const pg=document.createElement('div');
+    pg.className='rpage'+(i===0?' active':'');pg.id='bp-'+r.id;
+    if(ok){
+      const is=r.steps.find(s=>s.type==='ingredients');
+      const rows=is?is.ingredients.map(ing=>`<tr><td>${ing.emoji}  ${ing.name}</td><td>${ing.correct} ${ing.unit}</td></tr>`).join(''):'';
+      const stps=r.steps.map((s,si)=>`<div class="srow"><div class="snum">${si+1}</div><div class="stxt"><b>${s.title}</b> — ${s.desc}</div></div>`).join('');
+      pg.innerHTML=`<div class="rpttl"><span class="be">${r.emoji}</span><div><div class="rpttl-name">${r.name}</div><div class="rpttl-diff">${'★'.repeat(r.diff)} СЛОЖНОСТЬ</div></div></div><p class="rpdesc">${r.desc}</p>${is?`<div class="sec-label">Ингредиенты</div><table class="itable"><thead><tr><th>Продукт</th><th>Количество</th></tr></thead><tbody>${rows}</tbody></table>`:''}<div class="rslist"><div class="sec-label" style="margin-top:14px">Этапы приготовления</div>${stps}</div>`;
+    } else {
+      pg.innerHTML=`<div class="lmsg"><span class="le">🔒</span><p>Этот рецепт ещё не открыт.<br>Приготовьте предыдущее блюдо, чтобы разблокировать его.</p></div>`;
+    }
+    bc.appendChild(pg);
+  });
+  document.getElementById('boverlay').classList.add('open');
+}
+function showBPage(id){
+  document.querySelectorAll('.btab').forEach((t,i)=>{t.classList.toggle('active',RECIPES[i].id===id);});
+  document.querySelectorAll('.rpage').forEach(p=>{p.classList.toggle('active',p.id==='bp-'+id);});
+}
+function closeBook(){document.getElementById('boverlay').classList.remove('open');}
+
+// ──────────────────────────────────────────────
+// HELPERS
+// ──────────────────────────────────────────────
+function resetBowl(){const f=document.getElementById('bfill');f.style.height='0%';f.style.background='';f.style.boxShadow='';}
+function resetOven(){
+  document.getElementById('obar').style.width='0%';
+  document.getElementById('oglow').style.background='';
+  document.getElementById('oitem').textContent='';
+  document.getElementById('oitem').style.filter='';
+  if(bakeT){clearInterval(bakeT);bakeT=null;}
+}
+function updScore(){
+  document.getElementById('sv').textContent=score;
+  document.getElementById('lv').textContent=level;
+  document.getElementById('bv').textContent=baked;
+  const mp=document.getElementById('mnav-pts');
+  if(mp) mp.textContent=score+' очков';
+}
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);
+}
+function spawnP(emoji){
+  const k=document.getElementById('kitchen');
+  const p=document.createElement('div');p.className='part';p.textContent=emoji;
+  p.style.left=(15+Math.random()*70)+'%';p.style.bottom='42%';
+  k.appendChild(p);setTimeout(()=>p.remove(),950);
+}
+function spawnSparkle(id){
+  const el=document.getElementById(id);if(!el) return;
+  const s=document.createElement('div');s.className='sparkle';s.textContent='✦';
+  s.style.left='50%';s.style.top='20px';s.style.color='var(--gold)';
+  el.appendChild(s);setTimeout(()=>s.remove(),650);
+}
+function confetti(){
+  const cols=['#c9a84c','#e8647a','#5cc8b8','#c8a2c8','#f4a261','#e8c97a'];
+  for(let i=0;i<75;i++){
+    const c=document.createElement('div');c.className='cp';
+    c.style.left=Math.random()*100+'vw';c.style.top='-10px';
+    c.style.background=cols[Math.floor(Math.random()*cols.length)];
+    c.style.width=(4+Math.random()*8)+'px';c.style.height=(4+Math.random()*8)+'px';
+    c.style.animationDuration=(1.4+Math.random()*.9)+'s';
+    c.style.animationDelay=Math.random()*.5+'s';
+    document.body.appendChild(c);setTimeout(()=>c.remove(),2700);
+  }
+}
+
+renderRecipes();updScore();
+
+// ──────────────────────────────────────────────
+// MOBILE SIDEBAR
+// ──────────────────────────────────────────────
+function toggleSidebar(){
+  const p=document.getElementById('rpanel');
+  const o=document.getElementById('drawer-overlay');
+  const isOpen=p.classList.contains('open');
+  if(isOpen){ closeSidebar(); } else {
+    p.classList.add('open');
+    o.classList.add('open');
+  }
+}
+function closeSidebar(){
+  document.getElementById('rpanel').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+// Auto-close sidebar after recipe select on mobile
+const _origSelect = selectRecipe;
+window.selectRecipe = function(r){
+  _origSelect(r);
+  if(window.innerWidth<=640) closeSidebar();
+};
+
+// Resize handler — reset sidebar state on desktop
+window.addEventListener('resize',()=>{
+  if(window.innerWidth>640){
+    document.getElementById('rpanel').classList.remove('open');
+    document.getElementById('drawer-overlay').classList.remove('open');
+  }
+});
+
+// Canvas resize for mobile decor
+function getCanvasSize(){
+  if(window.innerWidth<=640){
+    const w=Math.min(window.innerWidth-40, 320);
+    return {w, h: Math.round(w*0.43)};
+  }
+  return {w:268, h:128};
+}
+</script>
+</body>
+</html>
